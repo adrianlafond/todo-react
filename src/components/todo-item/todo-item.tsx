@@ -64,7 +64,13 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     }
   }, [id, todoContext.idJustAdded]);
 
-  React.useEffect(() => {
+  // When `text is updated and the contentEditable element re-rendered, the
+  // cursor is reset to 0. To fix, the focus is updated whenever `text` changes
+  // (while checking that the field already has focus) to whatever it was
+  // prior to the change.
+  // `useLayoutEffect` is used instead of `useEffect` to prevent the cursor from
+  // flashing from position 0 to new position in Firefox.
+  React.useLayoutEffect(() => {
     if (inputRef.current && todoContext.idJustAdded !== id) {
       const el = inputRef.current as HTMLInputElement;
       const selection = window.getSelection();
