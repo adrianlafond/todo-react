@@ -32,14 +32,14 @@ describe('TodoCheck >', () => {
 
   it('calls onChange with correct checked on click', () => {
     render(<TodoCheck onChange={onChange} />);
-    const inputEl = document.querySelector<HTMLInputElement>('input[type=checkbox]');
+    const checkbox = document.querySelector<HTMLInputElement>('[data-component=todo-check] input');
 
     // Toggle true:
-    inputEl!.click();
+    checkbox!.click();
     expect(onChange).toHaveBeenCalledWith(true);
 
     // Toggle false:
-    inputEl!.click();
+    checkbox!.click();
     expect(onChange).toHaveBeenCalledWith(false);
   });
 });

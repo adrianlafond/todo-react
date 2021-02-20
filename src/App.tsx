@@ -14,8 +14,12 @@ function App() {
 
   return (
     <main className="app">
-      <TodoItem id="item0" complete={items['item0'] && items['item0'].complete} onCompleteChange={onCompleteChange} />
-      <TodoItem id="item1" complete={items['item1'] && items['item1'].complete} onCompleteChange={onCompleteChange} />
+      <TodoItem id="item0" complete={items['item0'] && items['item0'].complete} onCompleteChange={onCompleteChange}>
+        Text
+      </TodoItem>
+      <TodoItem id="item1" complete={items['item1'] && items['item1'].complete} onCompleteChange={onCompleteChange}>
+        Hello, world
+      </TodoItem>
     </main>
   );
 }

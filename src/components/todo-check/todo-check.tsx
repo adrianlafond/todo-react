@@ -16,7 +16,7 @@ export const TodoCheck: React.FC<TodoCheckProps> = ({
   }
 
   return (
-    <div className={`todo-check${checked ? ' todo-check--checked' : ''}`}>
+    <div data-component="todo-check" className={`todo-check${checked ? ' todo-check--checked' : ''}`}>
       <span className="todo-check__mark">
         &#x2713;
       </span>
