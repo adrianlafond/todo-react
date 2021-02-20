@@ -1,0 +1,45 @@
+import React from 'react';
+import { render } from '@testing-library/react';
+import { TodoCheck } from './todo-check';
+
+describe('TodoCheck >', () => {
+  let onChange: (checked: boolean) => void;
+
+  beforeEach(() => {
+    onChange = jest.fn();
+  })
+
+  it('renders an <input type="checkbox">', () => {
+    render(<TodoCheck onChange={onChange} />);
+    const inputEl = document.querySelector('input[type=checkbox]');
+    expect(inputEl).toBeInTheDocument();
+  });
+
+  it('displays as checked if prop "checked" is true', () => {
+    render(<TodoCheck checked onChange={onChange} />);
+    const checkEl = document.querySelector('.todo-check__mark');
+    expect(checkEl).toHaveClass('todo-check__mark--checked');
+  });
+  it('does not display as checked if prop "checked" not true', () => {
+    render(<>
+      <TodoCheck checked={false} onChange={onChange} />
+      <TodoCheck onChange={onChange} />
+    </>);
+    const checkEls = document.querySelectorAll('.todo-check__mark');
+    expect(checkEls[0]).not.toHaveClass('todo-check__mark--checked');
+    expect(checkEls[1]).not.toHaveClass('todo-check__mark--checked');
+  });
+
+  it('calls onChange with correct checked on click', () => {
+    render(<TodoCheck onChange={onChange} />);
+    const inputEl = document.querySelector<HTMLInputElement>('input[type=checkbox]');
+
+    // Toggle true:
+    inputEl!.click();
+    expect(onChange).toHaveBeenCalledWith(true);
+
+    // Toggle false:
+    inputEl!.click();
+    expect(onChange).toHaveBeenCalledWith(false);
+  });
+});
