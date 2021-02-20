@@ -2,14 +2,22 @@
   margin: 10px;
   position: relative;
   min-height: 64px;
-  border: 1px solid black;
   max-width: 360px;
   display: flex;
   align-items: stretch;
+  background-color: aliceblue;
+}
+
+.todo-item__complete {
+  /* */
 }
 
 .todo-item__text {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px;
+  flex-grow: 1;
+}
+
+.todo-item__delete {
+  border-width: 0;
+  background-color: transparent;
+  cursor: pointer;
 }
