@@ -8,6 +8,6 @@ export const TodoAddItem: React.FC<{ onAdd: () => void }> = ({ onAdd }) => {
   }
 
   return (
-    <button className="todo-add-item" onClick={onClick} />
+    <button className="todo-add-item" onClick={onClick}>+</button>
   )
 };

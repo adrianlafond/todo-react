@@ -27,7 +27,6 @@ function App() {
   }), [
     idJustAdded,
   ]);
-  console.log(todoContext);
 
   function onTodoComplete(id: string, complete: boolean) {
     const newItems = items.slice(0);
@@ -50,7 +49,7 @@ function App() {
   function onAddItem() {
     const id = `item${uid++}`;
     const newItems = items.slice(0);
-    newItems.push({ id, complete: false, text: '' });
+    newItems.push({ id, complete: false, text: 'What needs doing?' });
     setItems(newItems);
     setIdJustAdded(id);
   }
@@ -63,12 +62,11 @@ function App() {
             key={item.id}
             id={item.id}
             complete={item.complete}
+            text={item.text}
             onCompleteChange={onTodoComplete}
             onDelete={onTodoDelete}
             onTextChange={onTodoText}
-          >
-            {item.text}
-          </TodoItem>
+          />
         ))}
         <TodoAddItem onAdd={onAddItem} />
       </main>

@@ -9,15 +9,29 @@
 }
 
 .todo-item__complete {
-  /* */
+  margin-left: 10px;
 }
 
 .todo-item__text {
   flex-grow: 1;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 10px;
+}
+.todo-item__text--just-added {
+  font-style: italic;
+  color: gray;
 }
 
 .todo-item__delete {
   border-width: 0;
   background-color: transparent;
   cursor: pointer;
+  margin-right: 10px;
+}
+
+.todo-item__delete-cancel,
+.todo-item__delete-confirm {
+  flex-grow: 1;
 }
