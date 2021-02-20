@@ -16,8 +16,8 @@ export const TodoCheck: React.FC<TodoCheckProps> = ({
   }
 
   return (
-    <div className="todo-check">
-      <span className={`todo-check__mark${checked ? ' todo-check__mark--checked' : ''}`}>
+    <div className={`todo-check${checked ? ' todo-check--checked' : ''}`}>
+      <span className="todo-check__mark">
         &#x2713;
       </span>
       <input type="checkbox" className="todo-check__input" onChange={onInputChange} />

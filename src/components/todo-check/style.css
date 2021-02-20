@@ -3,30 +3,29 @@
   float: left;
   width: 64px;
   height: 64px;
-  border: 1px solid black;
-  border-radius: 8px;
-  background-color: white;
+  background-color: #eee;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .todo-check:focus-within {
-  border-color: royalblue;
-  background-color: aliceblue;
+  background-color: #111;
+  color: #333;
+}
+.todo-check--checked {
+  color: #000;
+}
+.todo-check--checked:focus-within {
+  color: #222;
+  color: #fff;
 }
 
 .todo-check__mark {
   font-size: 48px;
   font-weight: 900;
-  color: aliceblue;
   user-select: none;
-}
-.todo-check__mark--checked {
-  color: limegreen;
-}
-.todo-check:focus-within .todo-check__mark:not(.todo-check__mark--checked) {
-  color: white;
 }
 
 .todo-check__input {
