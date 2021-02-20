@@ -17,17 +17,17 @@ describe('TodoCheck >', () => {
 
   it('displays as checked if prop "checked" is true', () => {
     render(<TodoCheck checked onChange={onChange} />);
-    const checkEl = document.querySelector('.todo-check__mark');
-    expect(checkEl).toHaveClass('todo-check__mark--checked');
+    const checkEl = document.querySelector('.todo-check');
+    expect(checkEl).toHaveClass('todo-check--checked');
   });
   it('does not display as checked if prop "checked" not true', () => {
     render(<>
       <TodoCheck checked={false} onChange={onChange} />
       <TodoCheck onChange={onChange} />
     </>);
-    const checkEls = document.querySelectorAll('.todo-check__mark');
-    expect(checkEls[0]).not.toHaveClass('todo-check__mark--checked');
-    expect(checkEls[1]).not.toHaveClass('todo-check__mark--checked');
+    const checkEls = document.querySelectorAll('.todo-check');
+    expect(checkEls[0]).not.toHaveClass('todo-check--checked');
+    expect(checkEls[1]).not.toHaveClass('todo-check--checked');
   });
 
   it('calls onChange with correct checked on click', () => {
