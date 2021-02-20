@@ -74,7 +74,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     if (inputRef.current && todoContext.idJustAdded !== id) {
       const el = inputRef.current as HTMLInputElement;
       const selection = window.getSelection();
-      if (selection && (selection && el.contains(selection!.focusNode))) {
+      if (selection && el.contains(selection!.focusNode)) {
         const range = document.createRange();
         range.setStart(el.firstChild!, focusOffset.current);
         range.setEnd(el.firstChild!, focusOffset.current);
