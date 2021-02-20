@@ -1,0 +1,41 @@
+.todo-add-item {
+  border-width: 0;
+  background-color: #eee;
+  color: #000;
+  margin: 10px;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: stretch;
+  width: 64px;
+  min-height: 64px;
+  font-size: 48px;
+  font-weight: 700;
+  user-select: none;
+  cursor: pointer;
+}
+
+.todo-add-item::after {
+  content: "";
+  width: 8px;
+  height: 36px;
+  background-color: black;
+  position: absolute;
+  left: 28px;
+  top: 14px;
+}
+
+.todo-add-item::before {
+  content: "";
+  width: 36px;
+  height: 8px;
+  background-color: black;
+}
+
+.todo-add-item:focus {
+  background-color: #111;
+  color: #fff;
+  outline: none;
+}
