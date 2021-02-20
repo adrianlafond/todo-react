@@ -1,4 +1,5 @@
 import React from 'react';
+import { TodoContext } from '../../context/todo-context';
 
 import './style.css';
 
@@ -19,6 +20,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   onDelete = () => undefined,
   onTextChange = () => undefined,
 }) => {
+  const todoContext = React.useContext(TodoContext);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
 
   function onChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -37,15 +40,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     onDelete(id);
   }
 
-  function onInputRef(el: HTMLInputElement) {
-    if (el) {
-      el.focus();
-    }
-  }
-
   function onInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     onTextChange(id, event.target.value);
   }
+
+  React.useEffect(() => {
+    if (inputRef.current && todoContext.idJustAdded === id) {
+      inputRef.current.focus();
+      todoContext.clearIdJustAdded(id);
+    }
+  }, [id, todoContext]);
 
   return (
     <div className="todo-item">
@@ -57,7 +61,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       ) : (
         <>
             <input type="checkbox" checked={complete} onChange={onChange} className="todo-item__complete" />
-            <input type="text" className="todo-item__text" value={children} ref={onInputRef} onChange={onInputChange} />
+            <input type="text" className="todo-item__text" value={children} ref={inputRef} onChange={onInputChange} />
             <button className="todo-item__delete" onClick={onDeleteClick}>&#x1f5d1;</button>
         </>
       )}
