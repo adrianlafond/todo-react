@@ -1,6 +1,14 @@
 .todo-item {
   margin: 10px;
   position: relative;
-  height: 64px;
+  min-height: 64px;
   border: 1px solid black;
+  max-width: 360px;
+  padding: 10px;
+}
+
+.todo-item__text {
+  /* display: inline-flex; */
+  align-items: center;
+  min-height: 100%;
 }

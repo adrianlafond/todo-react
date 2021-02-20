@@ -5,10 +5,10 @@
   height: 64px;
   background-color: #eee;
   color: #fff;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin: 0 6px 6px 0;
+  margin: -10px 10px 6px -10px;
   border-width: 0 1px 1px 0;
   border-style: solid;
   border-color: black;
