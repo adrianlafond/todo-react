@@ -1,4 +1,5 @@
 .todo-item {
   margin: 10px;
   position: relative;
+  height: 64px;
 }

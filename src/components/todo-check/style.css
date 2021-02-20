@@ -11,6 +11,11 @@
   justify-content: center;
 }
 
+.todo-check:focus-within {
+  border-color: royalblue;
+  background-color: aliceblue;
+}
+
 .todo-check__mark {
   font-size: 48px;
   font-weight: 900;
@@ -19,6 +24,9 @@
 }
 .todo-check__mark--checked {
   color: limegreen;
+}
+.todo-check:focus-within .todo-check__mark:not(.todo-check__mark--checked) {
+  color: white;
 }
 
 .todo-check__input {
