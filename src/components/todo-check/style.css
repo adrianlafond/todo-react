@@ -1,0 +1,32 @@
+.todo-check {
+  position: relative;
+  float: left;
+  width: 64px;
+  height: 64px;
+  border: 1px solid black;
+  border-radius: 8px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.todo-check__mark {
+  font-size: 48px;
+  font-weight: 900;
+  color: aliceblue;
+  user-select: none;
+}
+.todo-check__mark--checked {
+  color: limegreen;
+}
+
+.todo-check__input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 64px;
+  height: 64px;
+  opacity: 0;
+  cursor: pointer;
+}

@@ -1,25 +1,21 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+import { TodoItem, CompleteChangeEvent } from './components/todo-item';
+import './app.css';
+
+interface ItemsState { [key: string]: { complete: boolean }};
 
 function App() {
+  const [items, setItems] = React.useState<ItemsState>({});
+
+  function onCompleteChange({ id, complete }: CompleteChangeEvent) {
+    setItems({ ...items, [id]: { complete } });
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <main className="app">
+      <TodoItem id="item0" complete={items['item0'] && items['item0'].complete} onCompleteChange={onCompleteChange} />
+    </main>
   );
 }
 
