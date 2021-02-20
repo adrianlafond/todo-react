@@ -4,11 +4,12 @@
   min-height: 64px;
   border: 1px solid black;
   max-width: 360px;
-  padding: 10px;
+  display: flex;
+  align-items: stretch;
 }
 
 .todo-item__text {
-  /* display: inline-flex; */
+  display: inline-flex;
   align-items: center;
-  min-height: 100%;
+  padding: 10px;
 }
