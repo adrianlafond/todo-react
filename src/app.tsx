@@ -4,6 +4,7 @@ import { TodoContext } from './context/todo-context';
 import { TodoItem, TodoMode } from './components/todo-item';
 import { TodoAddItem } from './components/todo-add-item';
 import { StatusBar } from './components/status-bar';
+import { TodosDb } from './services/todos-db';
 import './app.css';
 
 interface Item { id: string; complete: boolean; text: string; };
@@ -71,6 +72,10 @@ function App() {
     idJustAdded,
     idNextFocus,
   ]);
+
+  React.useEffect(() => {
+    const db = new TodosDb();
+  }, []);
 
   return (
     <TodoContext.Provider value={todoContext}>
