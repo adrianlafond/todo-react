@@ -12,6 +12,7 @@ let uid = 2;
 
 function App() {
   const [idJustAdded, setIdJustAdded] = React.useState<string | null>(null);
+  const [todoStatus, setTodoStatus] = React.useState<{ id: string, mode: TodoMode } | null>(null);
 
   const [items, setItems] = React.useState<Item[]>([
     { id: 'item0', complete: false, text: 'Hello, world' },
@@ -48,7 +49,7 @@ function App() {
   }
 
   function onTodoModeChange(id: string, mode: TodoMode) {
-    console.log(id, mode);
+    setTodoStatus({ id, mode });
   }
 
   function onAddItem() {
@@ -75,7 +76,7 @@ function App() {
           />
         ))}
         <TodoAddItem onAdd={onAddItem} />
-        <StatusBar todoMode="none" />
+        <StatusBar todoStatus={todoStatus} />
       </main>
     </TodoContext.Provider>
   );
