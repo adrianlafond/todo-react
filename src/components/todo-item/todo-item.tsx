@@ -13,7 +13,7 @@ export interface TodoItemProps {
   text?: string;
 }
 
-export type TodoMode = 'normal' | 'edit-text' | 'confirm-delete';
+export type TodoMode = 'focus' | 'edit-text' | 'confirm-delete' | 'none';
 
 export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   complete = false,
@@ -41,15 +41,25 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
 
   function onCancelDelete() {
     setIsConfirmingDelete(false);
-    onModeChange(id, 'normal');
+    onModeChange(id, 'focus');
   }
 
   function onConfirmDelete() {
     onDelete(id);
+    onModeChange(id, 'none');
   }
 
   function onRootFocus() {
-    onModeChange(id, 'normal');
+    onModeChange(id, 'focus');
+  }
+
+  function onRootBlur(event: React.FocusEvent) {
+    setTimeout(() => {
+      const el = rootRef.current;
+      if (el && el !== document.activeElement && !el.contains(document.activeElement)) {
+        onModeChange(id, 'none');
+      }
+    }, 0);
   }
 
   function onInputFocus(event: React.FocusEvent) {
@@ -184,6 +194,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
       onKeyDown={onKeyDown}
       ref={rootRef}
       onFocus={onRootFocus}
+      onBlur={onRootBlur}
       >
       {isConfirmingDelete ? (
         <>

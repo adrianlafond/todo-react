@@ -3,6 +3,7 @@ import React from 'react';
 import { TodoContext } from './context/todo-context';
 import { TodoItem, TodoMode } from './components/todo-item';
 import { TodoAddItem } from './components/todo-add-item';
+import { StatusBar } from './components/status-bar';
 import './app.css';
 
 interface Item { id: string; complete: boolean; text: string; };
@@ -74,6 +75,7 @@ function App() {
           />
         ))}
         <TodoAddItem onAdd={onAddItem} />
+        <StatusBar todoMode="none" />
       </main>
     </TodoContext.Provider>
   );
