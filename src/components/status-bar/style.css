@@ -1,0 +1,13 @@
+.status-bar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  /* min-height: 24px; */
+  background-color: black;
+  color: white;
+}
+
+.status-bar__text {
+  margin: 0;
+}
