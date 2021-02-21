@@ -4,7 +4,7 @@ import { TodoContext } from '../../context/todo-context';
 import './style.css';
 
 export interface TodoItemProps {
-  complete: boolean;
+  complete?: boolean;
   id: string;
   onCompleteChange?: (id: string, complete: boolean) => void;
   onDelete?: (id: string) => void;
@@ -92,13 +92,14 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     <div className="todo-item">
       {isConfirmingDelete ? (
         <>
-          <button className="todo-item__delete-cancel" onClick={onCancelDelete}>Cancel</button>
-          <button className="todo-item__delete-confirm" onClick={onConfirmDelete}>Yes, delete</button>
+          <button data-testid="todo-item__delete-cancel" className="todo-item__delete-cancel" onClick={onCancelDelete}>Cancel</button>
+          <button data-testid="todo-item__delete-confirm" className="todo-item__delete-confirm" onClick={onConfirmDelete}>Yes, delete</button>
         </>
       ) : (
         <>
-            <input type="checkbox" checked={complete} onChange={onChange} className="todo-item__complete" />
+            <input type="checkbox" data-testid="todo-item__complete" checked={complete} onChange={onChange} className="todo-item__complete" />
             <p
+              data-testid="todo-item__text"
               contentEditable
               suppressContentEditableWarning
               className={`todo-item__text ${justAdded ? ' todo-item__text--just-added' : ''}`}
@@ -107,7 +108,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             >
               {text}
             </p>
-            <button className="todo-item__delete" onClick={onDeleteClick}>&#x1f5d1;</button>
+            <button data-testid="todo-item__delete" className="todo-item__delete" onClick={onDeleteClick}>&#x1f5d1;</button>
         </>
       )}
     </div>
