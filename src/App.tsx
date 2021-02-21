@@ -8,27 +8,14 @@ import './app.css';
 
 interface Item { id: string; complete: boolean; text: string; };
 
-let uid = 2;
+let uid = 0;
 
 function App() {
   const [idJustAdded, setIdJustAdded] = React.useState<string | null>(null);
+  const [idNextFocus, setIdNextFocus] = React.useState<string | null>(null);
   const [todoStatus, setTodoStatus] = React.useState<{ id: string, mode: TodoMode } | null>(null);
 
-  const [items, setItems] = React.useState<Item[]>([
-    { id: 'item0', complete: false, text: 'Hello, world' },
-    { id: 'item1', complete: false, text: 'Buy milk' },
-  ]);
-
-  const todoContext = React.useMemo(() => ({
-    idJustAdded,
-    clearIdJustAdded: (id: string) => {
-      if (id === idJustAdded) {
-        setIdJustAdded(null);
-      }
-    },
-  }), [
-    idJustAdded,
-  ]);
+  const [items, setItems] = React.useState<Item[]>([]);
 
   function onTodoComplete(id: string, complete: boolean) {
     const newItems = items.slice(0);
@@ -38,7 +25,14 @@ function App() {
 
   function onTodoDelete(id: string) {
     const newItems = items.slice(0);
-    newItems.splice(items.findIndex(item => item.id === id), 1);
+    const deleteIndex = newItems.findIndex(item => item.id === id);
+    if (deleteIndex < newItems.length - 1) {
+      setIdNextFocus(newItems[deleteIndex + 1].id);
+    } else if (deleteIndex > 0) {
+      setIdNextFocus(newItems[deleteIndex - 1].id);
+    }
+    setIdJustAdded(null);
+    newItems.splice(deleteIndex, 1);
     setItems(newItems);
   }
 
@@ -59,6 +53,24 @@ function App() {
     setItems(newItems);
     setIdJustAdded(id);
   }
+
+  const todoContext = React.useMemo(() => ({
+    idJustAdded,
+    idNextFocus,
+    clearIdJustAdded: (id: string) => {
+      if (id === idJustAdded) {
+        setIdJustAdded(null);
+      }
+    },
+    clearNextFocus: (id: string) => {
+      if (id === idNextFocus) {
+        setIdNextFocus(null);
+      }
+    },
+  }), [
+    idJustAdded,
+    idNextFocus,
+  ]);
 
   return (
     <TodoContext.Provider value={todoContext}>

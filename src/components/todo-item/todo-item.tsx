@@ -65,6 +65,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   function onInputFocus(event: React.FocusEvent) {
     // prevent bubbling up to onRootFocus():
     event.stopPropagation();
+    startEditingText();
     onModeChange(id, 'edit-text');
   }
 
@@ -131,6 +132,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   function startEditingText() {
     if (inputRef.current) {
       inputRef.current.focus();
+      inputRef.current.setSelectionRange(0, inputRef.current.value.length, 'forward');
     }
   }
 
@@ -145,9 +147,8 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   }
 
   React.useEffect(() => {
-    if (inputRef.current && todoContext.idJustAdded === id) {
-      const el = inputRef.current as HTMLInputElement;
-      el.focus();
+    if (todoContext.idJustAdded === id) {
+      startEditingText();
       // const range = document.createRange();
       // const selection = window.getSelection();
       // range.setStart(el.firstChild!, 0);
@@ -157,7 +158,14 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
       //   selection.addRange(range);
       // }
     }
-  }, [id, todoContext.idJustAdded]);
+  }, [id, todoContext]);
+
+  React.useEffect(() => {
+    if (rootRef.current && todoContext.idNextFocus === id) {
+      rootRef.current.focus();
+      todoContext.clearNextFocus(id);
+    }
+  }, [id, todoContext]);
 
   // When `text is updated and the contentEditable element re-rendered, the
   // cursor is reset to 0. To fix, the focus is updated whenever `text` changes
