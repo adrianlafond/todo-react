@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { TodoContext } from './context/todo-context';
-import { TodoItem } from './components/todo-item';
+import { TodoItem, TodoMode } from './components/todo-item';
 import { TodoAddItem } from './components/todo-add-item';
 import './app.css';
 
@@ -46,6 +46,10 @@ function App() {
     setItems(newItems);
   }
 
+  function onTodoModeChange(id: string, mode: TodoMode) {
+    console.log(id, mode);
+  }
+
   function onAddItem() {
     const id = `item${uid++}`;
     const newItems = items.slice(0);
@@ -66,6 +70,7 @@ function App() {
             onCompleteChange={onTodoComplete}
             onDelete={onTodoDelete}
             onTextChange={onTodoText}
+            onModeChange={onTodoModeChange}
           />
         ))}
         <TodoAddItem onAdd={onAddItem} />

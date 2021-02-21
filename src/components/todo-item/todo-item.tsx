@@ -9,8 +9,11 @@ export interface TodoItemProps {
   onCompleteChange?: (id: string, complete: boolean) => void;
   onDelete?: (id: string) => void;
   onTextChange?: (id: string, text: string) => void;
+  onModeChange?: (id: string, mode: TodoMode) => void;
   text?: string;
 }
+
+export type TodoMode = 'normal' | 'edit-text' | 'confirm-delete';
 
 export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   complete = false,
@@ -19,6 +22,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   onCompleteChange = () => undefined,
   onDelete = () => undefined,
   onTextChange = () => undefined,
+  onModeChange = () =>  undefined,
 }) => {
   const todoContext = React.useContext(TodoContext);
   const rootRef = React.useRef<HTMLDivElement>(null);
@@ -32,14 +36,26 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
 
   function onDeleteClick() {
     setIsConfirmingDelete(true);
+    onModeChange(id, 'confirm-delete');
   }
 
   function onCancelDelete() {
     setIsConfirmingDelete(false);
+    onModeChange(id, 'normal');
   }
 
   function onConfirmDelete() {
     onDelete(id);
+  }
+
+  function onRootFocus() {
+    onModeChange(id, 'normal');
+  }
+
+  function onInputFocus(event: React.FocusEvent) {
+    // prevent bubbling up to onRootFocus():
+    event.stopPropagation();
+    onModeChange(id, 'edit-text');
   }
 
   function onItemTextChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -162,7 +178,13 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   // const justAdded = todoContext.idJustAdded === id;
 
   return (
-    <div className="todo-item" tabIndex={0} onKeyDown={onKeyDown} ref={rootRef}>
+    <div
+      className="todo-item"
+      tabIndex={0}
+      onKeyDown={onKeyDown}
+      ref={rootRef}
+      onFocus={onRootFocus}
+      >
       {isConfirmingDelete ? (
         <>
           <button
@@ -199,6 +221,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
               ref={inputRef}
               onInput={onItemTextChange}
               value={text}
+              onFocus={onInputFocus}
             />
             <button
               tabIndex={-1}
