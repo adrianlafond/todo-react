@@ -12,7 +12,7 @@ export interface TodoItemProps {
   text?: string;
 }
 
-export const TodoItem: React.FC<TodoItemProps> = ({
+export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   complete = false,
   id,
   text = '',
@@ -21,12 +21,12 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   onTextChange = () => undefined,
 }) => {
   const todoContext = React.useContext(TodoContext);
-  const inputRef = React.useRef<HTMLParagraphElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const focusOffset = React.useRef<number>(0);
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
 
-  function onChange(event: React.ChangeEvent<HTMLInputElement>) {
-    onCompleteChange(id, event.target.checked);
+  function onCheckboxChange() {
+    onCompleteChange(id, !complete);
   }
 
   function onDeleteClick() {
@@ -41,26 +41,65 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     onDelete(id);
   }
 
-  function onItemTextChange(event: React.ChangeEvent<HTMLParagraphElement>) {
-    const selection = window.getSelection();
-    if (selection) {
-      focusOffset.current = selection.focusOffset;
-    }
+  function onItemTextChange(event: React.ChangeEvent<HTMLInputElement>) {
+    // const selection = window.getSelection();
+    // if (selection) {
+    //   focusOffset.current = selection.focusOffset;
+    // }
+    // let newText = event.target.textContent || '';
+    // if (text.length === newText.length && text.endsWith(' ') && !newText.endsWith(' ')) {
+    //   newText = text + newText[newText.length - 1];
+    //   focusOffset.current += 1;
+    // }
+    // console.log(`event: {${text}} -> [${newText}]`);
     todoContext.clearIdJustAdded(id);
-    onTextChange(id, event.target.textContent || '');
+    onTextChange(id, event.target.value);
+  }
+
+  function onKeyDown(event: React.KeyboardEvent) {
+    if (isConfirmingDelete) {
+      switch (event.key) {
+        case 'Escape':
+          onCancelDelete();
+          break;
+        case 'Enter':
+        case 'Space':
+          onConfirmDelete();
+          break;
+        default:
+          break;
+      }
+    } else {
+      if (document.activeElement === inputRef.current) {
+        return;
+      }
+      switch (event.key) {
+        case 'Enter':
+        case ' ':
+          onCheckboxChange();
+          break;
+        case 'Backspace':
+        case 'Delete':
+          onDeleteClick();
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   React.useEffect(() => {
     if (inputRef.current && todoContext.idJustAdded === id) {
       const el = inputRef.current as HTMLInputElement;
-      const range = document.createRange();
-      const selection = window.getSelection();
-      range.setStart(el.firstChild!, 0);
-      range.setEnd(el.firstChild!, `${el.textContent ? el.textContent : ''}`.length);
-      if (selection) {
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
+      el.focus();
+      // const range = document.createRange();
+      // const selection = window.getSelection();
+      // range.setStart(el.firstChild!, 0);
+      // range.setEnd(el.firstChild!, `${el.textContent ? el.textContent : ''}`.length);
+      // if (selection) {
+      //   selection.removeAllRanges();
+      //   selection.addRange(range);
+      // }
     }
   }, [id, todoContext.idJustAdded]);
 
@@ -70,47 +109,77 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   // prior to the change.
   // `useLayoutEffect` is used instead of `useEffect` to prevent the cursor from
   // flashing from position 0 to new position in Firefox.
-  React.useLayoutEffect(() => {
-    if (inputRef.current && todoContext.idJustAdded !== id) {
-      const el = inputRef.current as HTMLInputElement;
-      const selection = window.getSelection();
-      if (selection && el.contains(selection!.focusNode)) {
-        const range = document.createRange();
-        range.setStart(el.firstChild!, focusOffset.current);
-        range.setEnd(el.firstChild!, focusOffset.current);
-        if (selection) {
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
-      }
-    }
-  }, [id, todoContext.idJustAdded, text]);
+  // React.useLayoutEffect(() => {
+  //   if (inputRef.current && todoContext.idJustAdded !== id) {
+  //     const el = inputRef.current as HTMLInputElement;
+  //     const selection = window.getSelection();
+  //     if (selection && el.contains(selection!.focusNode)) {
+  //       const range = document.createRange();
+  //       const maxOffset = Math.max(0, (inputRef.current.textContent || '').length - 1);
+  //       const offset = Math.min(maxOffset, focusOffset.current);
+  //       if (el.firstChild) {
+  //         range.setStart(el.firstChild, offset);
+  //         range.setEnd(el.firstChild, offset);
+  //       }
+  //       if (selection) {
+  //         selection.removeAllRanges();
+  //         selection.addRange(range);
+  //       }
+  //     }
+  //   }
+  // }, [id, todoContext.idJustAdded, text]);
 
-  const justAdded = todoContext.idJustAdded === id;
+  // const justAdded = todoContext.idJustAdded === id;
 
   return (
-    <div className="todo-item">
+    <div className="todo-item" tabIndex={0} onKeyDown={onKeyDown}>
       {isConfirmingDelete ? (
         <>
-          <button data-testid="todo-item__delete-cancel" className="todo-item__delete-cancel" onClick={onCancelDelete}>Cancel</button>
-          <button data-testid="todo-item__delete-confirm" className="todo-item__delete-confirm" onClick={onConfirmDelete}>Yes, delete</button>
+          <button
+            tabIndex={-1}
+            data-testid="todo-item__delete-cancel"
+            className="todo-item__delete-cancel todo-item__child"
+            onClick={onCancelDelete}
+          >
+            Cancel
+          </button>
+          <button
+            tabIndex={-1}
+            data-testid="todo-item__delete-confirm"
+            className="todo-item__delete-confirm todo-item__child"
+            onClick={onConfirmDelete}
+          >
+            Yes, delete
+          </button>
         </>
       ) : (
         <>
-            <input type="checkbox" data-testid="todo-item__complete" checked={complete} onChange={onChange} className="todo-item__complete" />
-            <p
+            <input
+              tabIndex={-1}
+              type="checkbox"
+              data-testid="todo-item__complete"
+              className="todo-item__complete todo-item__child"
+              checked={complete}
+              onChange={onCheckboxChange}
+            />
+            <input
+              tabIndex={-1}
               data-testid="todo-item__text"
-              contentEditable
-              suppressContentEditableWarning
-              className={`todo-item__text ${justAdded ? ' todo-item__text--just-added' : ''}`}
+              className="todo-item__text todo-item__child"
               ref={inputRef}
               onInput={onItemTextChange}
+              value={text}
+            />
+            <button
+              tabIndex={-1}
+              data-testid="todo-item__delete"
+              className="todo-item__delete todo-item__child"
+              onClick={onDeleteClick}
             >
-              {text}
-            </p>
-            <button data-testid="todo-item__delete" className="todo-item__delete" onClick={onDeleteClick}>&#x1f5d1;</button>
+              &#x1f5d1;
+            </button>
         </>
       )}
     </div>
   );
-}
+});
