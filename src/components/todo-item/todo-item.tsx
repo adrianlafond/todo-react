@@ -21,8 +21,9 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   onTextChange = () => undefined,
 }) => {
   const todoContext = React.useContext(TodoContext);
+  const rootRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const focusOffset = React.useRef<number>(0);
+  // const focusOffset = React.useRef<number>(0);
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
 
   function onCheckboxChange() {
@@ -69,10 +70,16 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
         default:
           break;
       }
-    } else {
-      if (document.activeElement === inputRef.current) {
-        return;
+    } else if (isEditingText()) {
+      switch (event.key) {
+        case 'Enter':
+        case 'Escape':
+          stopEditingText();
+          break;
+        default:
+          break;
       }
+    } else {
       switch (event.key) {
         case 'Enter':
         case ' ':
@@ -82,10 +89,33 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
         case 'Delete':
           onDeleteClick();
           break;
+        case 'i':
+        case 'I':
+          // preventDefault to prevent "Search for text when you start typing"
+          // in Firefox:
+          event.preventDefault();
+          startEditingText();
+          break;
         default:
           break;
       }
     }
+  }
+
+  function startEditingText() {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }
+
+  function stopEditingText() {
+    if (rootRef.current) {
+      rootRef.current.focus();
+    }
+  }
+
+  function isEditingText() {
+    return document.activeElement === inputRef.current;
   }
 
   React.useEffect(() => {
@@ -132,7 +162,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   // const justAdded = todoContext.idJustAdded === id;
 
   return (
-    <div className="todo-item" tabIndex={0} onKeyDown={onKeyDown}>
+    <div className="todo-item" tabIndex={0} onKeyDown={onKeyDown} ref={rootRef}>
       {isConfirmingDelete ? (
         <>
           <button
