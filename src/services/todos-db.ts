@@ -1,3 +1,6 @@
+const DB_NAME = 'todos';
+const STORE_NAME = 'todos';
+
 /**
  *
  */
@@ -10,13 +13,16 @@ export class TodosDb {
 
   public reset() {
     this.db?.close();
-    window.indexedDB.deleteDatabase('todos');
+    window.indexedDB.deleteDatabase(DB_NAME);
   }
 
   public open(): Promise<TodosDb> {
     return new Promise((resolve, reject) => {
-      const request = window.indexedDB.open('todos', 1);
+      const request = window.indexedDB.open(DB_NAME, 1);
       request.onupgradeneeded = this.onUpgradeNeeded.bind(this);
+      request.onblocked = function () {
+        console.log('Please close all other tabs with this site open so the database can be updated. Thank you.');
+      };
       request.onerror = () => {
         reject('Todos will not be saved or restored because database failed to open.');
       };
@@ -30,8 +36,8 @@ export class TodosDb {
   public createTodo(todo: Partial<Todo>): Promise<Todo> {
     return new Promise((resolve, reject) => {
       if (this.db) {
-        const request = this.db.transaction(['todos'], 'readwrite')
-          .objectStore('todos')
+        const request = this.db.transaction([DB_NAME], 'readwrite')
+          .objectStore(STORE_NAME)
           .add({ complete: false, text: '', ...todo });
         request.onsuccess = (event: any) => {
           this.readTodo(event.target.result)
@@ -50,8 +56,8 @@ export class TodosDb {
   public readTodo(id: number): Promise<Todo> {
     return new Promise((resolve, reject) => {
       if (this.db) {
-        const request = this.db.transaction(['todos'])
-          .objectStore('todos')
+        const request = this.db.transaction([DB_NAME])
+          .objectStore(STORE_NAME)
           .get(id);
         request.onsuccess = (event: any) => {
           if (event.target.result) {
@@ -72,7 +78,7 @@ export class TodosDb {
   public readAllTodos(): Promise<Todo[]> {
     return new Promise((resolve, reject) => {
       if (this.db) {
-        const request = this.db.transaction(['todos']).objectStore('todos').getAll();
+        const request = this.db.transaction([DB_NAME]).objectStore(STORE_NAME).getAll();
         request.onsuccess = (event: any) => {
           resolve(event.target.result);
         };
@@ -85,13 +91,13 @@ export class TodosDb {
     });
   }
 
-  public updateTodo(id: number, update: Partial<Todo>) {
+  public updateTodo(id: number, update: Partial<Todo>): Promise<Todo['id']> {
     return new Promise((resolve, reject) => {
       if (this.db) {
         this.readTodo(id)
           .then((todo: Todo) => {
             if (this.db) {
-              const store = this.db.transaction(['todos'], 'readwrite').objectStore('todos');
+              const store = this.db.transaction([DB_NAME], 'readwrite').objectStore(STORE_NAME);
               const storeUpdate = store.put({ ...todo, ...update, id: todo.id });
               storeUpdate.onsuccess = (event: any) => {
                 resolve(event.target.result);
@@ -113,8 +119,8 @@ export class TodosDb {
   public deleteTodo(id: number) {
     return new Promise((resolve, reject) => {
       if (this.db) {
-        const request = this.db.transaction(['todos'], 'readwrite')
-          .objectStore('todos')
+        const request = this.db.transaction([DB_NAME], 'readwrite')
+          .objectStore(STORE_NAME)
           .delete(id);
         request.onsuccess = () => {
           resolve(id);
@@ -133,14 +139,15 @@ export class TodosDb {
   private onUpgradeNeeded(event: any) {
     this.db = event.target.result;
     console.log('onUpgradeNeeded');
-    const objectStore = this.db!.createObjectStore('todos', { keyPath: 'id', autoIncrement: true });
+
+    // Version 1
+    const objectStore = this.db!.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
     objectStore.createIndex('id', 'id', { unique: true });
     objectStore.createIndex('text', 'text', { unique: false });
     objectStore.createIndex('complete', 'complete', { unique: false });
-    objectStore.transaction.oncomplete = () => {
-      const todosObjectStore = this.db!.transaction('todos', 'readwrite').objectStore('todos');
-      todosObjectStore.add({ text: 'What do you need to do?', complete: false });
-    }
+    objectStore.createIndex('due', 'due', { unique: false });
+
+    objectStore.add({ text: 'What do you need to do?', complete: false, due: 'Tuesday' });
   }
 
   private static confirmIndexedDb() {
@@ -154,4 +161,5 @@ export interface Todo {
   id: number;
   text: string;
   complete: boolean;
+  due: string;
 }

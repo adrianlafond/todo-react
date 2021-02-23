@@ -60,6 +60,7 @@ function App() {
 
   function onReset() {
     db.current.reset();
+    openDb();
   }
 
   const todoContext = React.useMemo(() => ({
@@ -80,7 +81,9 @@ function App() {
     idNextFocus,
   ]);
 
-  React.useEffect(() => {
+  React.useEffect(openDb, []);
+
+  function openDb() {
     db.current.open()
       .then(() => {
         db.current.readAllTodos()
@@ -90,8 +93,8 @@ function App() {
           })
           .catch(console.log);
       })
-      .catch(console.log)
-  }, []);
+      .catch(console.log);
+  }
 
   return (
     <TodoContext.Provider value={todoContext}>
