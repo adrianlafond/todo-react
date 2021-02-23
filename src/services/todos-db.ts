@@ -13,7 +13,7 @@ export class TodosDb {
     window.indexedDB.deleteDatabase('todos');
   }
 
-  public open() {
+  public open(): Promise<TodosDb> {
     return new Promise((resolve, reject) => {
       const request = window.indexedDB.open('todos', 1);
       request.onupgradeneeded = this.onUpgradeNeeded.bind(this);
