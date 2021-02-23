@@ -17,11 +17,11 @@ export class TodosDb {
     return new Promise((resolve, reject) => {
       const request = window.indexedDB.open('todos', 1);
       request.onupgradeneeded = this.onUpgradeNeeded.bind(this);
-      request.onerror = (event: any) => {
-        reject(event);
+      request.onerror = () => {
+        reject('Todos will not be saved or restored because database failed to open.');
       };
-      request.onsuccess = (event: any) => {
-        this.db = event.target.result as IDBDatabase;
+      request.onsuccess = () => {
+        this.db = request.result;
         resolve(this);
       }
     });
@@ -38,8 +38,8 @@ export class TodosDb {
             .then(resolve)
             .catch(console.log);
         };
-        request.onerror = (event: any) => {
-          reject(event);
+        request.onerror = () => {
+          reject('Todo was not created because a database error occurred.');
         }
       } else {
         reject(`Request to store a todo failed because database does not exist`);
@@ -56,8 +56,8 @@ export class TodosDb {
         request.onsuccess = (event: any) => {
           resolve(event.target.result as Todo);
         };
-        request.onerror = (event: any) => {
-          reject(event.target.result);
+        request.onerror = () => {
+          reject(`Todo with id ${id} could not be retrieved because a database error occurred.`);
         };
       } else {
         reject(`Request to read todo ${id} failed because database does not exist`);
@@ -72,11 +72,11 @@ export class TodosDb {
         request.onsuccess = (event: any) => {
           resolve(event.target.result);
         };
-        request.onerror = (event: any) => {
-          reject(event);
+        request.onerror = () => {
+          reject(`Todos could not be retrieved because a database error occurred.`);
         };
       } else {
-        reject(`Request to read all todos failed because database does not exist`);
+        reject(`Request to read all todos failed because database does not exist.`);
       }
     });
   }
@@ -92,12 +92,12 @@ export class TodosDb {
               storeUpdate.onsuccess = (event: any) => {
                 resolve(event.target.result);
               };
-              storeUpdate.onerror = (event: any) => {
-                reject(event);
+              storeUpdate.onerror = () => {
+                reject(`Todo with id ${id} could not be updated because a database error occurred.`);
               };
             }
           })
-          .catch((error: any) => {
+          .catch(error => {
             reject(error);
           });
       } else {
@@ -124,7 +124,7 @@ export class TodosDb {
     });
   }
 
-  //  event is `any` because event, target, and result are all possibly null for
+  // event is `any` because event, target, and result are all possibly null for
   // IDBVersionChangeEvent!
   private onUpgradeNeeded(event: any) {
     this.db = event.target.result;
