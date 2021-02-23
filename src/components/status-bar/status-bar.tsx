@@ -15,39 +15,45 @@ export interface StatusBarProps {
 export const StatusBar: React.FC<StatusBarProps> = React.memo(({
   todoStatus
 }) => {
-  const [todoOutput, setTodoOutput] = React.useState('');
   const todo = React.useRef<StatusBarProps['todoStatus']>(null);
 
-  React.useEffect(() => {
-    if (todoStatus) {
-      const { id, mode } = todoStatus;
-      if (mode === 'none' && todo.current && todo.current.id !== id) {
-        // An existing todo has a mode other than 'none', so do not update
-        // the status for this todo's 'none' mode.
-      } else {
-        todo.current = mode ==='none' ? null : todoStatus;
-      }
-      updateTodoOutput();
+  if (todoStatus) {
+    const { id, mode } = todoStatus;
+    if (mode === 'none' && todo.current && todo.current.id !== id) {
+      // An existing todo has a mode other than 'none', so do not update
+      // the status for this todo's 'none' mode.
+    } else {
+      todo.current = mode === 'none' ? null : todoStatus;
     }
-  }, [todoStatus]);
+  }
 
-  function updateTodoOutput() {
-    if (todo.current) {
-      switch (todo.current.mode) {
-        case 'focus':
-          setTodoOutput(`Press "enter" to toggle the complete state, "i" to edit text, 'delete' to delete this todo.`);
-          return;
-        case 'edit-text':
-          setTodoOutput(`Press "enter" to finish editing.`);
-          return;
-        case 'confirm-delete':
-          setTodoOutput(`Press "esc" to cancel, "enter" to confirm.`);
-          return;
-        default:
-          break;
-      }
+  let todoOutput: React.ReactNode = '';
+  if (todo.current) {
+    switch (todo.current.mode) {
+      case 'focus':
+        todoOutput = (
+          <>
+            Press <strong>enter</strong> to toggle the complete state, <strong>i</strong> to edit text, <strong>delete</strong> to delete this todo.
+          </>
+        );
+        break;
+      case 'edit-text':
+        todoOutput = (
+          <>
+            Press <strong>enter</strong> to finish editing.
+          </>
+        );
+        break;
+      case 'confirm-delete':
+        todoOutput = (
+          <>
+            Press <strong>esc</strong> to cancel or <strong>enter</strong> to confirm.
+          </>
+        );
+        break;
+      default:
+        break;
     }
-    setTodoOutput('');
   }
 
   return (
