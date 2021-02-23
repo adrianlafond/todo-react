@@ -54,7 +54,11 @@ export class TodosDb {
           .objectStore('todos')
           .get(id);
         request.onsuccess = (event: any) => {
-          resolve(event.target.result as Todo);
+          if (event.target.result) {
+            resolve(event.target.result as Todo);
+          } else {
+            reject(`No todo with id ${id} was found.`);
+          }
         };
         request.onerror = () => {
           reject(`Todo with id ${id} could not be retrieved because a database error occurred.`);
