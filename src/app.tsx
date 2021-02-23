@@ -4,27 +4,26 @@ import { TodoContext } from './context/todo-context';
 import { TodoItem, TodoMode } from './components/todo-item';
 import { TodoAddItem } from './components/todo-add-item';
 import { StatusBar } from './components/status-bar';
-import { TodosDb } from './services/todos-db';
+import { TodosDb, Todo } from './services/todos-db';
 import './app.css';
 
-interface Item { id: string; complete: boolean; text: string; };
-
-let uid = 0;
-
 function App() {
-  const [idJustAdded, setIdJustAdded] = React.useState<string | null>(null);
-  const [idNextFocus, setIdNextFocus] = React.useState<string | null>(null);
-  const [todoStatus, setTodoStatus] = React.useState<{ id: string, mode: TodoMode } | null>(null);
+  const db = React.useRef(new TodosDb());
+  const [idJustAdded, setIdJustAdded] = React.useState<number>(-1);
+  const [idNextFocus, setIdNextFocus] = React.useState<number>(-1);
+  const [todoStatus, setTodoStatus] = React.useState<{ id: number, mode: TodoMode } | null>(null);
 
-  const [items, setItems] = React.useState<Item[]>([]);
+  const [items, setItems] = React.useState<Todo[]>([]);
 
-  function onTodoComplete(id: string, complete: boolean) {
+  function onTodoComplete(id: number, complete: boolean) {
     const newItems = items.slice(0);
-    newItems[items.findIndex(item => item.id === id)].complete = complete;
+    const item = newItems[items.findIndex(item => item.id === id)];
+    item.complete = complete;
     setItems(newItems);
+    db.current.updateTodo(item.id, item);
   }
 
-  function onTodoDelete(id: string) {
+  function onTodoDelete(id: number) {
     const newItems = items.slice(0);
     const deleteIndex = newItems.findIndex(item => item.id === id);
     if (deleteIndex < newItems.length - 1) {
@@ -32,40 +31,48 @@ function App() {
     } else if (deleteIndex > 0) {
       setIdNextFocus(newItems[deleteIndex - 1].id);
     }
-    setIdJustAdded(null);
+    setIdJustAdded(-1);
     newItems.splice(deleteIndex, 1);
     setItems(newItems);
+    db.current.deleteTodo(id);
   }
 
-  function onTodoText(id: string, text: string) {
+  function onTodoText(id: number, text: string) {
     const newItems = items.slice(0);
-    newItems[items.findIndex(item => item.id === id)].text = text;
+    const item = newItems[items.findIndex(item => item.id === id)];
+    item.text = text;
     setItems(newItems);
+    db.current.updateTodo(item.id, item);
   }
 
-  function onTodoModeChange(id: string, mode: TodoMode) {
+  function onTodoModeChange(id: number, mode: TodoMode) {
     setTodoStatus({ id, mode });
   }
 
   function onAddItem() {
-    const id = `item${uid++}`;
-    const newItems = items.slice(0);
-    newItems.push({ id, complete: false, text: 'What needs doing?' });
-    setItems(newItems);
-    setIdJustAdded(id);
+    db.current.createTodo({ text: 'What needs doing?' })
+      .then((todo: Todo) => {
+        setIdJustAdded(todo.id);
+        setItems([ ...items, todo ]);
+      })
+      .catch(console.log);
+  }
+
+  function onReset() {
+    db.current.reset();
   }
 
   const todoContext = React.useMemo(() => ({
     idJustAdded,
     idNextFocus,
-    clearIdJustAdded: (id: string) => {
+    clearIdJustAdded: (id: number) => {
       if (id === idJustAdded) {
-        setIdJustAdded(null);
+        setIdJustAdded(-1);
       }
     },
-    clearNextFocus: (id: string) => {
+    clearNextFocus: (id: number) => {
       if (id === idNextFocus) {
-        setIdNextFocus(null);
+        setIdNextFocus(-1);
       }
     },
   }), [
@@ -74,7 +81,16 @@ function App() {
   ]);
 
   React.useEffect(() => {
-    const db = new TodosDb();
+    db.current.open()
+      .then(() => {
+        db.current.readAllTodos()
+          .then(todos => {
+            setIdNextFocus(todos[0] ? todos[0].id : -1);
+            setItems(todos);
+          })
+          .catch(console.log);
+      })
+      .catch(console.log)
   }, []);
 
   return (
@@ -82,7 +98,7 @@ function App() {
       <main className="app">
         {items.map(item => (
           <TodoItem
-            key={item.id}
+            key={`todo-${item.id}`}
             id={item.id}
             complete={item.complete}
             text={item.text}
@@ -93,6 +109,7 @@ function App() {
           />
         ))}
         <TodoAddItem onAdd={onAddItem} />
+        <button onClick={onReset}>Reset DB</button>
         <StatusBar todoStatus={todoStatus} />
       </main>
     </TodoContext.Provider>

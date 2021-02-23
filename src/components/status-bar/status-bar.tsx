@@ -4,7 +4,7 @@ import { TodoMode } from '../todo-item';
 import './style.css';
 
 export interface TodoStatus {
-  id: string;
+  id: number;
   mode: TodoMode;
 }
 
