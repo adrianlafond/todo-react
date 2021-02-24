@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import { TodoContext } from '../../context/todo-context';
 
 import './style.css';
@@ -197,7 +198,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
 
   return (
     <div
-      className="todo-item"
+      className={classnames('todo-item', { 'todo-item--complete': complete })}
       tabIndex={0}
       onKeyDown={onKeyDown}
       ref={rootRef}
@@ -236,7 +237,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
             <input
               tabIndex={-1}
               data-testid="todo-item__text"
-              className="todo-item__text todo-item__child"
+              className={classnames('todo-item__text', 'todo-item__child', { 'todo-item__text--complete': complete })}
               ref={inputRef}
               onInput={onItemTextChange}
               value={text}
