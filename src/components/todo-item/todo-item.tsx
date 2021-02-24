@@ -30,6 +30,12 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   const inputRef = React.useRef<HTMLInputElement>(null);
   // const focusOffset = React.useRef<number>(0);
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
+  const [mode, setMode] = React.useState('none');
+
+  function updateMode(mode: TodoMode) {
+    setMode(mode);
+    onModeChange(id, mode);
+  }
 
   function onCheckboxChange() {
     onCompleteChange(id, !complete);
@@ -37,28 +43,28 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
 
   function onDeleteClick() {
     setIsConfirmingDelete(true);
-    onModeChange(id, 'confirm-delete');
+    updateMode('confirm-delete');
   }
 
   function onCancelDelete() {
     setIsConfirmingDelete(false);
-    onModeChange(id, 'focus');
+    updateMode('focus');
   }
 
   function onConfirmDelete() {
     onDelete(id);
-    onModeChange(id, 'none');
+    updateMode('none');
   }
 
   function onRootFocus() {
-    onModeChange(id, 'focus');
+    updateMode('focus');
   }
 
   function onRootBlur(event: React.FocusEvent) {
     setTimeout(() => {
       const el = rootRef.current;
       if (el && el !== document.activeElement && !el.contains(document.activeElement)) {
-        onModeChange(id, 'none');
+        updateMode('none');
       }
     }, 0);
   }
@@ -67,7 +73,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     // prevent bubbling up to onRootFocus():
     event.stopPropagation();
     startEditingText();
-    onModeChange(id, 'edit-text');
+    updateMode('edit-text');
   }
 
   function onItemTextChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -198,61 +204,76 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
 
   return (
     <div
-      className={classnames('todo-item', { 'todo-item--complete': complete })}
+      className={classnames(
+        'todo-item',
+        {
+          'todo-item--complete': complete,
+          'todo-item--focus': mode !== 'none',
+        }
+      )}
       tabIndex={0}
       onKeyDown={onKeyDown}
       ref={rootRef}
       onFocus={onRootFocus}
       onBlur={onRootBlur}
-      >
-      {isConfirmingDelete ? (
-        <>
-          <button
-            tabIndex={-1}
-            data-testid="todo-item__delete-cancel"
-            className="todo-item__delete-cancel todo-item__child"
-            onClick={onCancelDelete}
-          >
-            Cancel
-          </button>
-          <button
-            tabIndex={-1}
-            data-testid="todo-item__delete-confirm"
-            className="todo-item__delete-confirm todo-item__child"
-            onClick={onConfirmDelete}
-          >
-            Yes, delete
-          </button>
-        </>
-      ) : (
-        <>
-            <input
-              tabIndex={-1}
-              type="checkbox"
-              data-testid="todo-item__complete"
-              className="todo-item__complete todo-item__child"
-              checked={complete}
-              onChange={onCheckboxChange}
-            />
-            <input
-              tabIndex={-1}
-              data-testid="todo-item__text"
-              className={classnames('todo-item__text', 'todo-item__child', { 'todo-item__text--complete': complete })}
-              ref={inputRef}
-              onInput={onItemTextChange}
-              value={text}
-              onFocus={onInputFocus}
-            />
+    >
+      <div className="todo-item__content">
+        {isConfirmingDelete ? (
+          <>
             <button
               tabIndex={-1}
-              data-testid="todo-item__delete"
-              className="todo-item__delete todo-item__child"
-              onClick={onDeleteClick}
+              data-testid="todo-item__delete-cancel"
+              className="todo-item__delete-cancel todo-item__child"
+              onClick={onCancelDelete}
             >
-              &#x1f5d1;
+              Cancel
             </button>
-        </>
-      )}
+            <button
+              tabIndex={-1}
+              data-testid="todo-item__delete-confirm"
+              className="todo-item__delete-confirm todo-item__child"
+              onClick={onConfirmDelete}
+            >
+              Yes, delete
+            </button>
+          </>
+        ) : (
+          <>
+              <input
+                tabIndex={-1}
+                type="checkbox"
+                data-testid="todo-item__complete"
+                className="todo-item__complete todo-item__child"
+                checked={complete}
+                onChange={onCheckboxChange}
+              />
+              <input
+                tabIndex={-1}
+                data-testid="todo-item__text"
+                className={classnames(
+                  'todo-item__text',
+                  'todo-item__child',
+                  {
+                    'todo-item__text--complete': complete,
+                    'todo-item__text--focus': mode !== 'none',
+                  }
+                )}
+                ref={inputRef}
+                onInput={onItemTextChange}
+                value={text}
+                onFocus={onInputFocus}
+              />
+              <button
+                tabIndex={-1}
+                data-testid="todo-item__delete"
+                className="todo-item__delete todo-item__child"
+                onClick={onDeleteClick}
+              >
+                &#x1f5d1;
+              </button>
+          </>
+        )}
+      </div>
     </div>
   );
 });

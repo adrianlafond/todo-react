@@ -1,21 +1,32 @@
 .todo-item {
-  margin: 10px;
+  margin: 10px 0;
   position: relative;
   min-height: 64px;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  background-color: #000;
+  background-color: #678;
   color: #fff;
+  display: flex;
+  justify-content: center;
+  transition: background-color 0.5s ease-out;
 }
 .todo-item--complete {
-  background-color: #444;
+  background-color: #abc;
+}
+.todo-item--focus {
+  background-color: #234;
 }
 .todo-item:focus {
-  background-color: #00f;
+  outline: none;
 }
-.todo-item--complete:focus {
-  background-color: #246;
+
+.todo-item__content {
+  position: relative;
+  max-width: 640px;
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  background-color: rgba(0, 0, 0, 0.25);
+  margin: 0 10px;
 }
 
 .todo-item__child {
@@ -41,10 +52,16 @@
   color: #fff;
 }
 .todo-item__text--complete {
-  color: #999;
+  color: #222;
+}
+.todo-item__text--focus {
+  color: #fff;
 }
 .todo-item__text--just-added {
   font-style: italic;
+}
+.todo-item__text:focus {
+  outline: none;
 }
 
 .todo-item__delete {
