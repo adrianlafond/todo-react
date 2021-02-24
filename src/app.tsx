@@ -16,9 +16,21 @@ function App() {
   const [items, setItems] = React.useState<Todo[]>([]);
 
   function onTodoComplete(id: number, complete: boolean) {
+    onUpdateItem(id, 'complete', complete);
+  }
+
+  function onTodoText(id: number, text: string) {
+    onUpdateItem(id, 'text', text);
+  }
+
+  function onUpdateItem(id: number, prop: keyof Todo, value: string | boolean) {
     const newItems = items.slice(0);
     const item = newItems[items.findIndex(item => item.id === id)];
-    item.complete = complete;
+    if (prop === 'complete') {
+      item.complete = value as boolean;
+    } else if (prop === 'text') {
+      item.text = value as string;
+    }
     setItems(newItems);
     db.current.updateTodo(item.id, item);
   }
@@ -35,14 +47,6 @@ function App() {
     newItems.splice(deleteIndex, 1);
     setItems(newItems);
     db.current.deleteTodo(id);
-  }
-
-  function onTodoText(id: number, text: string) {
-    const newItems = items.slice(0);
-    const item = newItems[items.findIndex(item => item.id === id)];
-    item.text = text;
-    setItems(newItems);
-    db.current.updateTodo(item.id, item);
   }
 
   function onTodoModeChange(id: number, mode: TodoMode) {
