@@ -103,20 +103,22 @@ function App() {
   return (
     <TodoContext.Provider value={todoContext}>
       <main className="app">
-        {items.map(item => (
-          <TodoItem
-            key={`todo-${item.id}`}
-            id={item.id}
-            complete={item.complete}
-            text={item.text}
-            onCompleteChange={onTodoComplete}
-            onDelete={onTodoDelete}
-            onTextChange={onTodoText}
-            onModeChange={onTodoModeChange}
-          />
-        ))}
-        <TodoAddItem onAdd={onAddItem} />
-        <button onClick={onReset}>Reset DB</button>
+        <div className="app__content">
+          {items.map(item => (
+            <TodoItem
+              key={`todo-${item.id}`}
+              id={item.id}
+              complete={item.complete}
+              text={item.text}
+              onCompleteChange={onTodoComplete}
+              onDelete={onTodoDelete}
+              onTextChange={onTodoText}
+              onModeChange={onTodoModeChange}
+            />
+          ))}
+          <TodoAddItem onAdd={onAddItem} />
+          <button onClick={onReset}>Reset DB</button>
+        </div>
         <StatusBar todoStatus={todoStatus} />
       </main>
     </TodoContext.Provider>
