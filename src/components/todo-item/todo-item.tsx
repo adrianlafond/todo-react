@@ -5,11 +5,11 @@ import './style.css';
 
 export interface TodoItemProps {
   complete?: boolean;
-  id: string;
-  onCompleteChange?: (id: string, complete: boolean) => void;
-  onDelete?: (id: string) => void;
-  onTextChange?: (id: string, text: string) => void;
-  onModeChange?: (id: string, mode: TodoMode) => void;
+  id: number;
+  onCompleteChange?: (id: number, complete: boolean) => void;
+  onDelete?: (id: number) => void;
+  onTextChange?: (id: number, text: string) => void;
+  onModeChange?: (id: number, mode: TodoMode) => void;
   text?: string;
 }
 
@@ -158,14 +158,14 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
       //   selection.addRange(range);
       // }
     }
-  }, [id, todoContext]);
+  }, [id, todoContext, inputRef]);
 
   React.useEffect(() => {
     if (rootRef.current && todoContext.idNextFocus === id) {
       rootRef.current.focus();
       todoContext.clearNextFocus(id);
     }
-  }, [id, todoContext]);
+  }, [id, todoContext, rootRef]);
 
   // When `text is updated and the contentEditable element re-rendered, the
   // cursor is reset to 0. To fix, the focus is updated whenever `text` changes

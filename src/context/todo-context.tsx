@@ -1,15 +1,15 @@
 import React from 'react';
 
 export interface TodoContextProps {
-  idJustAdded: string | null;
-  idNextFocus: string | null;
-  clearIdJustAdded: (id: string) => void;
-  clearNextFocus: (id: string) => void;
+  idJustAdded: number;
+  idNextFocus: number;
+  clearIdJustAdded: (id: number) => void;
+  clearNextFocus: (id: number) => void;
 }
 
 export const TodoContext = React.createContext<TodoContextProps>({
-  idJustAdded: null,
-  idNextFocus: null,
+  idJustAdded: -1,
+  idNextFocus: -1,
   clearIdJustAdded: () => undefined,
   clearNextFocus: () => undefined,
 });
