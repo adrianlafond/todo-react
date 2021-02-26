@@ -78,4 +78,16 @@
 .todo-item__delete-cancel,
 .todo-item__delete-confirm {
   flex-grow: 1;
+  font-size: 1rem;
+  border-width: 0;
+}
+.todo-item__delete-cancel:focus,
+.todo-item__delete-confirm:focus {
+  outline: none;
+}
+.todo-item__delete-cancel {
+  background-color: #eee;
+}
+.todo-item__delete-confirm {
+  background-color: #fff;
 }
