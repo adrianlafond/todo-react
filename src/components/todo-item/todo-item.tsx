@@ -299,7 +299,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
                 'todo-item__child',
                 {
                   'todo-item__text--complete': complete,
-                  'todo-item__text--focus': mode !== 'none',
+                  'todo-item__text--focus': isFocused,
                 }
               )}
               ref={inputRef}
@@ -314,7 +314,22 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
               className="todo-item__delete todo-item__child"
               onClick={onDeleteClick}
             >
-              &#x1f5d1;
+              <div className={classnames(
+                'todo-item__delete-swipe',
+                'todo-item__delete-swipe-1',
+                {
+                  'todo-item__delete-swipe--complete': complete,
+                  'todo-item__delete-swipe--focus': isFocused,
+                }
+              )} />
+              <div className={classnames(
+                'todo-item__delete-swipe',
+                'todo-item__delete-swipe-2',
+                {
+                  'todo-item__delete-swipe--complete': complete,
+                  'todo-item__delete-swipe--focus': isFocused,
+                }
+              )} />
             </button>
           </>
         )}

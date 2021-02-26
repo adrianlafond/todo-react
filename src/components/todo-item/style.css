@@ -84,6 +84,7 @@
   position: absolute;
   left: 0;
   top: 0;
+  cursor: pointer;
 }
 
 .todo-item__text {
@@ -113,9 +114,38 @@
 
 .todo-item__delete {
   border-width: 0;
+  /* border: 1px solid red; */
   background-color: transparent;
   cursor: pointer;
-  margin-right: 10px;
+  margin: 0;
+  padding: 0;
+  width: 64px;
+  position: relative;
+}
+.todo-item__delete-swipe {
+  transform: rotate(45deg);
+  transform-origin: center center;
+  background-color: #fff;
+}
+.todo-item__delete-swipe--complete {
+  background-color: #ccc;
+}
+.todo-item__delete-swipe--focus {
+  background-color: #000;
+}
+.todo-item__delete-swipe-1 {
+  position: absolute;
+  top: 31px;
+  left: 19px;
+  width: 24px;
+  height: 2px;
+}
+.todo-item__delete-swipe-2 {
+  position: absolute;
+  top: 20px;
+  left: 30px;
+  width: 2px;
+  height: 24px;
 }
 
 .todo-item__delete-cancel,
