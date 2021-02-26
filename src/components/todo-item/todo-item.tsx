@@ -29,6 +29,9 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   const rootRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   // const focusOffset = React.useRef<number>(0);
+
+  const tempText = React.useRef(text);
+  const [stateText, setStateText] = React.useState(text);
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
   const [mode, setMode] = React.useState('none');
 
@@ -64,9 +67,16 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     setTimeout(() => {
       const el = rootRef.current;
       if (el && el !== document.activeElement && !el.contains(document.activeElement)) {
+        if (isConfirmingDelete) {
+          setIsConfirmingDelete(false);
+        }
         updateMode('none');
       }
     }, 0);
+  }
+
+  function onInputBlur() {
+    saveText();
   }
 
   function onInputFocus(event: React.FocusEvent) {
@@ -88,7 +98,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     // }
     // console.log(`event: {${text}} -> [${newText}]`);
     todoContext.clearIdJustAdded(id);
-    onTextChange(id, event.target.value);
+    setStateText(event.target.value);
   }
 
   function onKeyDown(event: React.KeyboardEvent) {
@@ -107,8 +117,12 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     } else if (isEditingText()) {
       switch (event.key) {
         case 'Enter':
+          stopEditingText();
+          saveText();
+          break;
         case 'Escape':
           stopEditingText();
+          resetText();
           break;
         default:
           break;
@@ -136,8 +150,17 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     }
   }
 
+  function saveText() {
+    onTextChange(id, stateText);
+  }
+
+  function resetText() {
+    setStateText(tempText.current);
+  }
+
   function startEditingText() {
     if (inputRef.current) {
+      tempText.current = stateText;
       inputRef.current.focus();
       inputRef.current.setSelectionRange(0, inputRef.current.value.length, 'forward');
     }
@@ -259,8 +282,9 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
                   }
                 )}
                 ref={inputRef}
+                value={stateText}
                 onInput={onItemTextChange}
-                value={text}
+                onBlur={onInputBlur}
                 onFocus={onInputFocus}
               />
               <button
