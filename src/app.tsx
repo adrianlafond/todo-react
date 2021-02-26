@@ -117,7 +117,7 @@ function App() {
             />
           ))}
           <TodoAddItem onAdd={onAddItem} />
-          <button onClick={onReset}>Reset DB</button>
+          {/* <button onClick={onReset}>Reset DB</button> */}
         </div>
         <StatusBar todoStatus={todoStatus} />
       </main>

@@ -240,7 +240,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
       onFocus={onRootFocus}
       onBlur={onRootBlur}
     >
-      <div className="todo-item__content">
+      <div className={classnames('todo-item__content', { 'todo-item__content--focus': mode !== 'none' })}>
         {isConfirmingDelete ? (
           <>
             <button
