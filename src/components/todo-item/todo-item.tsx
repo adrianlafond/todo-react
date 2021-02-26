@@ -225,13 +225,15 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
 
   // const justAdded = todoContext.idJustAdded === id;
 
+  const isFocused = mode !== 'none';
+
   return (
     <div
       className={classnames(
         'todo-item',
         {
           'todo-item--complete': complete,
-          'todo-item--focus': mode !== 'none',
+          'todo-item--focus': isFocused,
         }
       )}
       tabIndex={0}
@@ -240,7 +242,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
       onFocus={onRootFocus}
       onBlur={onRootBlur}
     >
-      <div className={classnames('todo-item__content', { 'todo-item__content--focus': mode !== 'none' })}>
+      <div className={classnames('todo-item__content', { 'todo-item__content--focus': isFocused })}>
         {isConfirmingDelete ? (
           <>
             <button
@@ -262,39 +264,58 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
           </>
         ) : (
           <>
+            <div className="todo-item__complete todo-item__child">
+              <div className="todo-item__complete-checkbox">
+                <div className={classnames(
+                  'todo-item__complete-checkbox-hit',
+                  {
+                    'todo-item__complete-checkbox-hit--focus': isFocused,
+                    'todo-item__complete-checkbox-hit--complete': complete,
+                  }
+                )}>
+                  <div className={classnames(
+                    'todo-item__complete-checkbox-hit-check',
+                    {
+                      'todo-item__complete-checkbox-hit-check--focus': isFocused && complete,
+                      'todo-item__complete-checkbox-hit-check--complete': complete,
+                    }
+                  )}/>
+                </div>
+              </div>
               <input
                 tabIndex={-1}
                 type="checkbox"
                 data-testid="todo-item__complete"
-                className="todo-item__complete todo-item__child"
+                className="todo-item__complete-input"
                 checked={complete}
                 onChange={onCheckboxChange}
               />
-              <input
-                tabIndex={-1}
-                data-testid="todo-item__text"
-                className={classnames(
-                  'todo-item__text',
-                  'todo-item__child',
-                  {
-                    'todo-item__text--complete': complete,
-                    'todo-item__text--focus': mode !== 'none',
-                  }
-                )}
-                ref={inputRef}
-                value={stateText}
-                onInput={onItemTextChange}
-                onBlur={onInputBlur}
-                onFocus={onInputFocus}
-              />
-              <button
-                tabIndex={-1}
-                data-testid="todo-item__delete"
-                className="todo-item__delete todo-item__child"
-                onClick={onDeleteClick}
-              >
-                &#x1f5d1;
-              </button>
+            </div>
+            <input
+              tabIndex={-1}
+              data-testid="todo-item__text"
+              className={classnames(
+                'todo-item__text',
+                'todo-item__child',
+                {
+                  'todo-item__text--complete': complete,
+                  'todo-item__text--focus': mode !== 'none',
+                }
+              )}
+              ref={inputRef}
+              value={stateText}
+              onInput={onItemTextChange}
+              onBlur={onInputBlur}
+              onFocus={onInputFocus}
+            />
+            <button
+              tabIndex={-1}
+              data-testid="todo-item__delete"
+              className="todo-item__delete todo-item__child"
+              onClick={onDeleteClick}
+            >
+              &#x1f5d1;
+            </button>
           </>
         )}
       </div>
