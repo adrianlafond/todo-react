@@ -3,17 +3,17 @@
   position: relative;
   min-height: 64px;
   overflow: hidden;
-  background-color: olive;
+  background-color: #333;
   color: #fff;
   display: flex;
   justify-content: center;
   transition: background-color 0.5s ease-out;
 }
 .todo-item--complete {
-  background-color: darkkhaki;
+  background-color: #666;
 }
 .todo-item--focus {
-  background-color: yellow;
+  background-color: #fff;
 }
 .todo-item:focus {
   outline: none;
@@ -55,7 +55,7 @@
   color: #ccc;
 }
 .todo-item__text--focus {
-  color: #fff;
+  color: #000;
 }
 .todo-item__text--just-added {
   font-style: italic;
