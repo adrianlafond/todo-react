@@ -179,16 +179,8 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   React.useEffect(() => {
     if (todoContext.idJustAdded === id) {
       startEditingText();
-      // const range = document.createRange();
-      // const selection = window.getSelection();
-      // range.setStart(el.firstChild!, 0);
-      // range.setEnd(el.firstChild!, `${el.textContent ? el.textContent : ''}`.length);
-      // if (selection) {
-      //   selection.removeAllRanges();
-      //   selection.addRange(range);
-      // }
     }
-  }, [id, todoContext, inputRef]);
+  }, [id, todoContext]);
 
   React.useEffect(() => {
     if (rootRef.current && todoContext.idNextFocus === id) {
@@ -196,34 +188,6 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
       todoContext.clearNextFocus(id);
     }
   }, [id, todoContext, rootRef]);
-
-  // When `text is updated and the contentEditable element re-rendered, the
-  // cursor is reset to 0. To fix, the focus is updated whenever `text` changes
-  // (while checking that the field already has focus) to whatever it was
-  // prior to the change.
-  // `useLayoutEffect` is used instead of `useEffect` to prevent the cursor from
-  // flashing from position 0 to new position in Firefox.
-  // React.useLayoutEffect(() => {
-  //   if (inputRef.current && todoContext.idJustAdded !== id) {
-  //     const el = inputRef.current as HTMLInputElement;
-  //     const selection = window.getSelection();
-  //     if (selection && el.contains(selection!.focusNode)) {
-  //       const range = document.createRange();
-  //       const maxOffset = Math.max(0, (inputRef.current.textContent || '').length - 1);
-  //       const offset = Math.min(maxOffset, focusOffset.current);
-  //       if (el.firstChild) {
-  //         range.setStart(el.firstChild, offset);
-  //         range.setEnd(el.firstChild, offset);
-  //       }
-  //       if (selection) {
-  //         selection.removeAllRanges();
-  //         selection.addRange(range);
-  //       }
-  //     }
-  //   }
-  // }, [id, todoContext.idJustAdded, text]);
-
-  // const justAdded = todoContext.idJustAdded === id;
 
   const isFocused = mode !== 'none';
 

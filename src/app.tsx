@@ -12,7 +12,7 @@ function App() {
   const [idJustAdded, setIdJustAdded] = React.useState<number>(-1);
   const [idNextFocus, setIdNextFocus] = React.useState<number>(-1);
   const [todoStatus, setTodoStatus] = React.useState<{ id: number, mode: TodoMode } | null>(null);
-
+  const focussedTodoId = React.useRef(-1);
   const [items, setItems] = React.useState<Todo[]>([]);
 
   function onTodoComplete(id: number, complete: boolean) {
@@ -50,6 +50,11 @@ function App() {
   }
 
   function onTodoModeChange(id: number, mode: TodoMode) {
+    if (mode === 'none' && id === focussedTodoId.current) {
+      focussedTodoId.current = -1;
+    } else if (mode !== 'none') {
+      focussedTodoId.current = id;
+    }
     setTodoStatus({ id, mode });
   }
 
@@ -62,10 +67,69 @@ function App() {
       .catch(console.log);
   }
 
-  function onReset() {
-    db.current.reset();
-    openDb();
+  function onAddFocus() {
+    focussedTodoId.current = 0;
+    if (idNextFocus === 0) {
+      setIdNextFocus(-1);
+    }
   }
+
+  function onAddBlur() {
+    if (focussedTodoId.current === 0) {
+      focussedTodoId.current = -1;
+    }
+  }
+
+  // function onKeyDown(event: KeyboardEvent) {
+  //   const up = event.key === 'ArrowUp';
+  //   const down = event.key === 'ArrowDown';
+  //   if (up || down) {
+  //     const currentIndex = items.findIndex(item => item.id === focussedTodoId.current);
+  //     document.body.focus();
+  //     if (up && currentIndex > 0) {
+  //       setIdNextFocus(items[currentIndex - 1].id);
+  //     } else if (down && currentIndex < items.length - 1) {
+  //       setIdNextFocus(items[currentIndex + 1].id);
+  //     }
+  //   }
+  // }
+
+  // function onReset() {
+  //   db.current.reset();
+  //   openDb();
+  // }
+
+  React.useEffect(openDb, []);
+
+  React.useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const up = event.key === 'ArrowUp';
+      const down = event.key === 'ArrowDown';
+      if (up || down) {
+        const currentIndex = items.findIndex(item => item.id === focussedTodoId.current);
+        document.body.focus();
+        if (up) {
+          if (focussedTodoId.current === 0) {
+            setIdNextFocus(items[items.length - 1].id);
+          } else if (currentIndex > 0) {
+            setIdNextFocus(items[currentIndex - 1].id);
+          } else {
+            setIdNextFocus(focussedTodoId.current);
+          }
+        } else if (down) {
+          if (currentIndex < items.length - 1 && currentIndex !== -1) {
+            setIdNextFocus(items[currentIndex + 1].id);
+          } else if (currentIndex === items.length - 1) {
+            setIdNextFocus(0);
+          } else {
+            setIdNextFocus(focussedTodoId.current);
+          }
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [items]);
 
   const todoContext = React.useMemo(() => ({
     idJustAdded,
@@ -84,8 +148,6 @@ function App() {
     idJustAdded,
     idNextFocus,
   ]);
-
-  React.useEffect(openDb, []);
 
   function openDb() {
     db.current.open()
@@ -116,7 +178,7 @@ function App() {
               onModeChange={onTodoModeChange}
             />
           ))}
-          <TodoAddItem onAdd={onAddItem} />
+          <TodoAddItem onAdd={onAddItem} onFocus={onAddFocus} onBlur={onAddBlur} />
           {/* <button onClick={onReset}>Reset DB</button> */}
         </div>
         <StatusBar todoStatus={todoStatus} />
