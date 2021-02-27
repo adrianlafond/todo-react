@@ -28,7 +28,6 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   const todoContext = React.useContext(TodoContext);
   const rootRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  // const focusOffset = React.useRef<number>(0);
 
   const tempText = React.useRef(text);
   const [stateText, setStateText] = React.useState(text);
@@ -87,16 +86,6 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   }
 
   function onItemTextChange(event: React.ChangeEvent<HTMLInputElement>) {
-    // const selection = window.getSelection();
-    // if (selection) {
-    //   focusOffset.current = selection.focusOffset;
-    // }
-    // let newText = event.target.textContent || '';
-    // if (text.length === newText.length && text.endsWith(' ') && !newText.endsWith(' ')) {
-    //   newText = text + newText[newText.length - 1];
-    //   focusOffset.current += 1;
-    // }
-    // console.log(`event: {${text}} -> [${newText}]`);
     todoContext.clearIdJustAdded(id);
     setStateText(event.target.value);
   }
