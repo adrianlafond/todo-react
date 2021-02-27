@@ -158,13 +158,13 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     setStateText(tempText.current);
   }
 
-  function startEditingText() {
+  const startEditingText = React.useCallback(() => {
     if (inputRef.current) {
       tempText.current = stateText;
       inputRef.current.focus();
       inputRef.current.setSelectionRange(0, inputRef.current.value.length, 'forward');
     }
-  }
+  }, [inputRef, stateText]);
 
   function stopEditingText() {
     if (rootRef.current) {
@@ -180,7 +180,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     if (todoContext.idJustAdded === id) {
       startEditingText();
     }
-  }, [id, todoContext]);
+  }, [id, todoContext, startEditingText]);
 
   React.useEffect(() => {
     if (rootRef.current && todoContext.idNextFocus === id) {
