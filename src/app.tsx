@@ -80,20 +80,6 @@ function App() {
     }
   }
 
-  // function onKeyDown(event: KeyboardEvent) {
-  //   const up = event.key === 'ArrowUp';
-  //   const down = event.key === 'ArrowDown';
-  //   if (up || down) {
-  //     const currentIndex = items.findIndex(item => item.id === focussedTodoId.current);
-  //     document.body.focus();
-  //     if (up && currentIndex > 0) {
-  //       setIdNextFocus(items[currentIndex - 1].id);
-  //     } else if (down && currentIndex < items.length - 1) {
-  //       setIdNextFocus(items[currentIndex + 1].id);
-  //     }
-  //   }
-  // }
-
   // function onReset() {
   //   db.current.reset();
   //   openDb();
@@ -114,6 +100,9 @@ function App() {
           } else if (currentIndex > 0) {
             setIdNextFocus(items[currentIndex - 1].id);
           } else {
+            if (focussedTodoId.current === -1) {
+              focussedTodoId.current = 0;
+            }
             setIdNextFocus(focussedTodoId.current);
           }
         } else if (down) {
@@ -122,6 +111,9 @@ function App() {
           } else if (currentIndex === items.length - 1) {
             setIdNextFocus(0);
           } else {
+            if (focussedTodoId.current === -1) {
+              focussedTodoId.current = items[0].id;
+            }
             setIdNextFocus(focussedTodoId.current);
           }
         }
