@@ -202,6 +202,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
               tabIndex={-1}
               data-testid="todo-item__delete-cancel"
               className="todo-item__delete-cancel todo-item__child"
+              aria-label="Cancel delete"
               onClick={onCancelDelete}
             >
               Cancel
@@ -210,6 +211,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
               tabIndex={-1}
               data-testid="todo-item__delete-confirm"
               className="todo-item__delete-confirm todo-item__child"
+              aria-label="Confirm delete"
               onClick={onConfirmDelete}
             >
               Yes, delete
@@ -235,36 +237,42 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
                   )}/>
                 </div>
               </div>
+              <label className="todo-item__complete-label">
+                {`Mark ${complete ? 'in' : ''}complete`}
+                <input
+                  tabIndex={-1}
+                  type="checkbox"
+                  data-testid="todo-item__complete"
+                  className="todo-item__complete-input"
+                  checked={complete}
+                  onChange={onCheckboxChange}
+                />
+              </label>
+            </div>
+            <label className="todo-item__text-label">
               <input
                 tabIndex={-1}
-                type="checkbox"
-                data-testid="todo-item__complete"
-                className="todo-item__complete-input"
-                checked={complete}
-                onChange={onCheckboxChange}
+                data-testid="todo-item__text"
+                className={classnames(
+                  'todo-item__text',
+                  'todo-item__child',
+                  {
+                    'todo-item__text--complete': complete,
+                    'todo-item__text--focus': isFocused,
+                  }
+                )}
+                ref={inputRef}
+                value={stateText}
+                onInput={onItemTextChange}
+                onBlur={onInputBlur}
+                onFocus={onInputFocus}
               />
-            </div>
-            <input
-              tabIndex={-1}
-              data-testid="todo-item__text"
-              className={classnames(
-                'todo-item__text',
-                'todo-item__child',
-                {
-                  'todo-item__text--complete': complete,
-                  'todo-item__text--focus': isFocused,
-                }
-              )}
-              ref={inputRef}
-              value={stateText}
-              onInput={onItemTextChange}
-              onBlur={onInputBlur}
-              onFocus={onInputFocus}
-            />
+            </label>
             <button
               tabIndex={-1}
               data-testid="todo-item__delete"
               className="todo-item__delete todo-item__child"
+              aria-label="Delete"
               onClick={onDeleteClick}
             >
               <div className={classnames(
