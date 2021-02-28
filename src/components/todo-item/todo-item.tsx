@@ -238,7 +238,7 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
                 </div>
               </div>
               <label className="todo-item__complete-label">
-                {`Mark ${complete ? 'in' : ''}complete`}
+                  {`Mark ${stateText} as complete`}
                 <input
                   tabIndex={-1}
                   type="checkbox"
