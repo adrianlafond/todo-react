@@ -92,6 +92,7 @@ function App() {
       const up = event.key === 'ArrowUp';
       const down = event.key === 'ArrowDown';
       if (up || down) {
+        event.preventDefault();
         const currentIndex = items.findIndex(item => item.id === focussedTodoId.current);
         document.body.focus();
         if (up) {
