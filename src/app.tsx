@@ -12,7 +12,7 @@ function App() {
   const [idJustAdded, setIdJustAdded] = React.useState<number>(-1);
   const [idNextFocus, setIdNextFocus] = React.useState<number>(-1);
   const [todoStatus, setTodoStatus] = React.useState<{ id: number, mode: TodoMode } | null>(null);
-
+  const focussedTodoId = React.useRef(-1);
   const [items, setItems] = React.useState<Todo[]>([]);
 
   function onTodoComplete(id: number, complete: boolean) {
@@ -50,6 +50,11 @@ function App() {
   }
 
   function onTodoModeChange(id: number, mode: TodoMode) {
+    if (mode === 'none' && id === focussedTodoId.current) {
+      focussedTodoId.current = -1;
+    } else if (mode !== 'none') {
+      focussedTodoId.current = id;
+    }
     setTodoStatus({ id, mode });
   }
 
@@ -62,10 +67,62 @@ function App() {
       .catch(console.log);
   }
 
-  function onReset() {
-    db.current.reset();
-    openDb();
+  function onAddFocus() {
+    focussedTodoId.current = 0;
+    if (idNextFocus === 0) {
+      setIdNextFocus(-1);
+    }
   }
+
+  function onAddBlur() {
+    if (focussedTodoId.current === 0) {
+      focussedTodoId.current = -1;
+    }
+  }
+
+  // function onReset() {
+  //   db.current.reset();
+  //   openDb();
+  // }
+
+  React.useEffect(openDb, []);
+
+  React.useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const up = event.key === 'ArrowUp';
+      const down = event.key === 'ArrowDown';
+      if (up || down) {
+        event.preventDefault();
+        const currentIndex = items.findIndex(item => item.id === focussedTodoId.current);
+        document.body.focus();
+        if (up) {
+          if (focussedTodoId.current === 0) {
+            setIdNextFocus(items[items.length - 1].id);
+          } else if (currentIndex > 0) {
+            setIdNextFocus(items[currentIndex - 1].id);
+          } else {
+            if (focussedTodoId.current === -1) {
+              focussedTodoId.current = 0;
+            }
+            setIdNextFocus(focussedTodoId.current);
+          }
+        } else if (down) {
+          if (currentIndex < items.length - 1 && currentIndex !== -1) {
+            setIdNextFocus(items[currentIndex + 1].id);
+          } else if (currentIndex === items.length - 1) {
+            setIdNextFocus(0);
+          } else {
+            if (focussedTodoId.current === -1) {
+              focussedTodoId.current = items[0].id;
+            }
+            setIdNextFocus(focussedTodoId.current);
+          }
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [items]);
 
   const todoContext = React.useMemo(() => ({
     idJustAdded,
@@ -85,8 +142,6 @@ function App() {
     idNextFocus,
   ]);
 
-  React.useEffect(openDb, []);
-
   function openDb() {
     db.current.open()
       .then(() => {
@@ -103,20 +158,22 @@ function App() {
   return (
     <TodoContext.Provider value={todoContext}>
       <main className="app">
-        {items.map(item => (
-          <TodoItem
-            key={`todo-${item.id}`}
-            id={item.id}
-            complete={item.complete}
-            text={item.text}
-            onCompleteChange={onTodoComplete}
-            onDelete={onTodoDelete}
-            onTextChange={onTodoText}
-            onModeChange={onTodoModeChange}
-          />
-        ))}
-        <TodoAddItem onAdd={onAddItem} />
-        <button onClick={onReset}>Reset DB</button>
+        <div className="app__content">
+          {items.map(item => (
+            <TodoItem
+              key={`todo-${item.id}`}
+              id={item.id}
+              complete={item.complete}
+              text={item.text}
+              onCompleteChange={onTodoComplete}
+              onDelete={onTodoDelete}
+              onTextChange={onTodoText}
+              onModeChange={onTodoModeChange}
+            />
+          ))}
+          <TodoAddItem onAdd={onAddItem} onFocus={onAddFocus} onBlur={onAddBlur} />
+          {/* <button onClick={onReset}>Reset DB</button> */}
+        </div>
         <StatusBar todoStatus={todoStatus} />
       </main>
     </TodoContext.Provider>

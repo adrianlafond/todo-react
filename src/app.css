@@ -1,3 +1,7 @@
 .app {
   position: relative;
 }
+
+.app__content {
+  position: relative;
+}

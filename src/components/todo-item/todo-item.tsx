@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import { TodoContext } from '../../context/todo-context';
 
 import './style.css';
@@ -27,8 +28,16 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   const todoContext = React.useContext(TodoContext);
   const rootRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  // const focusOffset = React.useRef<number>(0);
+
+  const tempText = React.useRef(text);
+  const [stateText, setStateText] = React.useState(text);
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
+  const [mode, setMode] = React.useState('none');
+
+  function updateMode(mode: TodoMode) {
+    setMode(mode);
+    onModeChange(id, mode);
+  }
 
   function onCheckboxChange() {
     onCompleteChange(id, !complete);
@@ -36,52 +45,49 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
 
   function onDeleteClick() {
     setIsConfirmingDelete(true);
-    onModeChange(id, 'confirm-delete');
+    updateMode('confirm-delete');
   }
 
   function onCancelDelete() {
     setIsConfirmingDelete(false);
-    onModeChange(id, 'focus');
+    updateMode('focus');
   }
 
   function onConfirmDelete() {
     onDelete(id);
-    onModeChange(id, 'none');
+    updateMode('none');
   }
 
   function onRootFocus() {
-    onModeChange(id, 'focus');
+    updateMode('focus');
   }
 
   function onRootBlur(event: React.FocusEvent) {
     setTimeout(() => {
       const el = rootRef.current;
       if (el && el !== document.activeElement && !el.contains(document.activeElement)) {
-        onModeChange(id, 'none');
+        if (isConfirmingDelete) {
+          setIsConfirmingDelete(false);
+        }
+        updateMode('none');
       }
     }, 0);
+  }
+
+  function onInputBlur() {
+    saveText();
   }
 
   function onInputFocus(event: React.FocusEvent) {
     // prevent bubbling up to onRootFocus():
     event.stopPropagation();
     startEditingText();
-    onModeChange(id, 'edit-text');
+    updateMode('edit-text');
   }
 
   function onItemTextChange(event: React.ChangeEvent<HTMLInputElement>) {
-    // const selection = window.getSelection();
-    // if (selection) {
-    //   focusOffset.current = selection.focusOffset;
-    // }
-    // let newText = event.target.textContent || '';
-    // if (text.length === newText.length && text.endsWith(' ') && !newText.endsWith(' ')) {
-    //   newText = text + newText[newText.length - 1];
-    //   focusOffset.current += 1;
-    // }
-    // console.log(`event: {${text}} -> [${newText}]`);
     todoContext.clearIdJustAdded(id);
-    onTextChange(id, event.target.value);
+    setStateText(event.target.value);
   }
 
   function onKeyDown(event: React.KeyboardEvent) {
@@ -100,8 +106,12 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     } else if (isEditingText()) {
       switch (event.key) {
         case 'Enter':
+          stopEditingText();
+          saveText();
+          break;
         case 'Escape':
           stopEditingText();
+          resetText();
           break;
         default:
           break;
@@ -129,12 +139,21 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     }
   }
 
-  function startEditingText() {
+  function saveText() {
+    onTextChange(id, stateText);
+  }
+
+  function resetText() {
+    setStateText(tempText.current);
+  }
+
+  const startEditingText = React.useCallback(() => {
     if (inputRef.current) {
+      tempText.current = stateText;
       inputRef.current.focus();
       inputRef.current.setSelectionRange(0, inputRef.current.value.length, 'forward');
     }
-  }
+  }, [inputRef, stateText]);
 
   function stopEditingText() {
     if (rootRef.current) {
@@ -149,16 +168,8 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
   React.useEffect(() => {
     if (todoContext.idJustAdded === id) {
       startEditingText();
-      // const range = document.createRange();
-      // const selection = window.getSelection();
-      // range.setStart(el.firstChild!, 0);
-      // range.setEnd(el.firstChild!, `${el.textContent ? el.textContent : ''}`.length);
-      // if (selection) {
-      //   selection.removeAllRanges();
-      //   selection.addRange(range);
-      // }
     }
-  }, [id, todoContext, inputRef]);
+  }, [id, todoContext, startEditingText]);
 
   React.useEffect(() => {
     if (rootRef.current && todoContext.idNextFocus === id) {
@@ -167,91 +178,123 @@ export const TodoItem: React.FC<TodoItemProps> = React.memo(({
     }
   }, [id, todoContext, rootRef]);
 
-  // When `text is updated and the contentEditable element re-rendered, the
-  // cursor is reset to 0. To fix, the focus is updated whenever `text` changes
-  // (while checking that the field already has focus) to whatever it was
-  // prior to the change.
-  // `useLayoutEffect` is used instead of `useEffect` to prevent the cursor from
-  // flashing from position 0 to new position in Firefox.
-  // React.useLayoutEffect(() => {
-  //   if (inputRef.current && todoContext.idJustAdded !== id) {
-  //     const el = inputRef.current as HTMLInputElement;
-  //     const selection = window.getSelection();
-  //     if (selection && el.contains(selection!.focusNode)) {
-  //       const range = document.createRange();
-  //       const maxOffset = Math.max(0, (inputRef.current.textContent || '').length - 1);
-  //       const offset = Math.min(maxOffset, focusOffset.current);
-  //       if (el.firstChild) {
-  //         range.setStart(el.firstChild, offset);
-  //         range.setEnd(el.firstChild, offset);
-  //       }
-  //       if (selection) {
-  //         selection.removeAllRanges();
-  //         selection.addRange(range);
-  //       }
-  //     }
-  //   }
-  // }, [id, todoContext.idJustAdded, text]);
-
-  // const justAdded = todoContext.idJustAdded === id;
+  const isFocused = mode !== 'none';
 
   return (
     <div
-      className="todo-item"
+      className={classnames(
+        'todo-item',
+        {
+          'todo-item--complete': complete,
+          'todo-item--focus': isFocused,
+        }
+      )}
       tabIndex={0}
       onKeyDown={onKeyDown}
       ref={rootRef}
       onFocus={onRootFocus}
       onBlur={onRootBlur}
-      >
-      {isConfirmingDelete ? (
-        <>
-          <button
-            tabIndex={-1}
-            data-testid="todo-item__delete-cancel"
-            className="todo-item__delete-cancel todo-item__child"
-            onClick={onCancelDelete}
-          >
-            Cancel
-          </button>
-          <button
-            tabIndex={-1}
-            data-testid="todo-item__delete-confirm"
-            className="todo-item__delete-confirm todo-item__child"
-            onClick={onConfirmDelete}
-          >
-            Yes, delete
-          </button>
-        </>
-      ) : (
-        <>
-            <input
+    >
+      <div className={classnames('todo-item__content', { 'todo-item__content--focus': isFocused })}>
+        {isConfirmingDelete ? (
+          <>
+            <button
               tabIndex={-1}
-              type="checkbox"
-              data-testid="todo-item__complete"
-              className="todo-item__complete todo-item__child"
-              checked={complete}
-              onChange={onCheckboxChange}
-            />
-            <input
+              data-testid="todo-item__delete-cancel"
+              className="todo-item__delete-cancel todo-item__child"
+              aria-label="Cancel delete"
+              onClick={onCancelDelete}
+            >
+              Cancel
+            </button>
+            <button
               tabIndex={-1}
-              data-testid="todo-item__text"
-              className="todo-item__text todo-item__child"
-              ref={inputRef}
-              onInput={onItemTextChange}
-              value={text}
-              onFocus={onInputFocus}
-            />
+              data-testid="todo-item__delete-confirm"
+              className="todo-item__delete-confirm todo-item__child"
+              aria-label="Confirm delete"
+              onClick={onConfirmDelete}
+            >
+              Yes, delete
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="todo-item__complete todo-item__child">
+              <div className="todo-item__complete-checkbox">
+                <div className={classnames(
+                  'todo-item__complete-checkbox-hit',
+                  {
+                    'todo-item__complete-checkbox-hit--focus': isFocused,
+                    'todo-item__complete-checkbox-hit--complete': complete,
+                  }
+                )}>
+                  <div className={classnames(
+                    'todo-item__complete-checkbox-hit-check',
+                    {
+                      'todo-item__complete-checkbox-hit-check--focus': isFocused && complete,
+                      'todo-item__complete-checkbox-hit-check--complete': complete,
+                    }
+                  )}/>
+                </div>
+              </div>
+              <label className="todo-item__complete-label">
+                  {`Mark ${stateText} as complete`}
+                <input
+                  tabIndex={-1}
+                  type="checkbox"
+                  data-testid="todo-item__complete"
+                  className="todo-item__complete-input"
+                  checked={complete}
+                  onChange={onCheckboxChange}
+                />
+              </label>
+            </div>
+            <label className="todo-item__text-label">
+              <input
+                tabIndex={-1}
+                data-testid="todo-item__text"
+                className={classnames(
+                  'todo-item__text',
+                  'todo-item__child',
+                  {
+                    'todo-item__text--complete': complete,
+                    'todo-item__text--focus': isFocused,
+                  }
+                )}
+                ref={inputRef}
+                value={stateText}
+                onInput={onItemTextChange}
+                onBlur={onInputBlur}
+                onFocus={onInputFocus}
+              />
+            </label>
             <button
               tabIndex={-1}
               data-testid="todo-item__delete"
               className="todo-item__delete todo-item__child"
+              aria-label="Delete"
               onClick={onDeleteClick}
             >
-              &#x1f5d1;
+              <div className={classnames(
+                'todo-item__delete-swipe',
+                'todo-item__delete-swipe-1',
+                {
+                  'todo-item__delete-swipe--complete': complete,
+                  'todo-item__delete-swipe--focus': isFocused,
+                }
+              )} />
+              <div className={classnames(
+                'todo-item__delete-swipe',
+                'todo-item__delete-swipe-2',
+                {
+                  'todo-item__delete-swipe--complete': complete,
+                  'todo-item__delete-swipe--focus': isFocused,
+                }
+              )} />
             </button>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 });

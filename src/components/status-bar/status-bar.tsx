@@ -40,7 +40,7 @@ export const StatusBar: React.FC<StatusBarProps> = React.memo(({
       case 'edit-text':
         todoOutput = (
           <>
-            Press <strong>enter</strong> to finish editing.
+            Press <strong>enter</strong> to finish editing, <strong>esc</strong> to cancel.
           </>
         );
         break;
