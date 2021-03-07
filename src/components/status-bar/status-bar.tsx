@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import { TodoMode } from '../todo-item';
 
 import './style.css';
@@ -10,12 +11,27 @@ export interface TodoStatus {
 
 export interface StatusBarProps {
   todoStatus: TodoStatus | null;
+  errorMessage?: string;
 }
 
 export const StatusBar: React.FC<StatusBarProps> = React.memo(({
-  todoStatus
+  todoStatus,
+  errorMessage,
 }) => {
   const todo = React.useRef<StatusBarProps['todoStatus']>(null);
+
+  const [stateErrorMessage, setStateErrorMessage] = React.useState<string | undefined>();
+  const errorTimeout = React.useRef(0);
+  React.useEffect(() => {
+    setStateErrorMessage(errorMessage);
+    if (errorMessage) {
+      window.clearTimeout(errorTimeout.current);
+      errorTimeout.current = window.setTimeout(() => {
+        setStateErrorMessage(undefined);
+      }, 5000);
+    }
+    return () => window.clearTimeout(errorTimeout.current);
+  }, [errorMessage]);
 
   if (todoStatus) {
     const { id, mode } = todoStatus;
@@ -58,7 +74,16 @@ export const StatusBar: React.FC<StatusBarProps> = React.memo(({
 
   return (
     <div className="status-bar">
-      <p className="status-bar__text">{todoOutput}</p>
+      <p className={classnames(
+        'status-bar__text',
+        'status-bar__error',
+        { 'status-bar__text--active': stateErrorMessage },
+      )}>{stateErrorMessage}</p>
+      <p className={classnames(
+        'status-bar__text',
+        'status-bar__info',
+        { 'status-bar__text--active': todoOutput },
+      )}>{todoOutput}</p>
     </div>
   );
 });

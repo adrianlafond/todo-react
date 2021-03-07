@@ -21,7 +21,7 @@ export class TodosDb {
       const request = window.indexedDB.open(DB_NAME, 1);
       request.onupgradeneeded = this.onUpgradeNeeded.bind(this);
       request.onblocked = function () {
-        console.log('Please close all other tabs with this site open so the database can be updated. Thank you.');
+        reject('Please close all other tabs with this site open so the database can be updated. Thank you.');
       };
       request.onerror = () => {
         reject('Todos will not be saved or restored because database failed to open.');
@@ -138,7 +138,6 @@ export class TodosDb {
   // IDBVersionChangeEvent!
   private onUpgradeNeeded(event: any) {
     this.db = event.target.result;
-    console.log('onUpgradeNeeded');
 
     // Version 1
     const objectStore = this.db!.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });

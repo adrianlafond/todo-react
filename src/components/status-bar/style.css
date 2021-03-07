@@ -3,12 +3,23 @@
   left: 0;
   bottom: 0;
   width: 100%;
-  background-color: black;
   color: white;
-  padding: 10px;
   text-align: left;
 }
 
 .status-bar__text {
   margin: 0;
+  padding: 0;
+  transition: padding 0.3s ease-out;
+}
+.status-bar__text--active {
+  padding: 10px;
+}
+
+.status-bar__error {
+  background-color: #991100;
+}
+
+.status-bar__info {
+  background-color: black;
 }

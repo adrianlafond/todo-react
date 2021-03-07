@@ -1,19 +1,20 @@
 import React from 'react';
 
-import { TodoContext } from './context/todo-context';
-import { TodoItem, TodoMode } from './components/todo-item';
-import { TodoAddItem } from './components/todo-add-item';
-import { StatusBar } from './components/status-bar';
-import { TodosDb, Todo } from './services/todos-db';
+import { TodoContext } from '../../context/todo-context';
+import { TodoItem, TodoMode } from '../todo-item';
+import { TodoAddItem } from '../todo-add-item';
+import { StatusBar } from '../status-bar';
+import { TodosDb, Todo } from '../../services/todos-db';
 import './app.css';
 
-function App() {
+export function App() {
   const db = React.useRef(new TodosDb());
   const [idJustAdded, setIdJustAdded] = React.useState<number>(-1);
   const [idNextFocus, setIdNextFocus] = React.useState<number>(-1);
   const [todoStatus, setTodoStatus] = React.useState<{ id: number, mode: TodoMode } | null>(null);
   const focussedTodoId = React.useRef(-1);
   const [items, setItems] = React.useState<Todo[]>([]);
+  const [errorMessage, setErrorMessage] = React.useState<undefined | string>();
 
   function onTodoComplete(id: number, complete: boolean) {
     onUpdateItem(id, 'complete', complete);
@@ -64,7 +65,7 @@ function App() {
         setIdJustAdded(todo.id);
         setItems([ ...items, todo ]);
       })
-      .catch(console.log);
+      .catch(setErrorMessage);
   }
 
   function onAddFocus() {
@@ -150,9 +151,9 @@ function App() {
             setIdNextFocus(todos[0] ? todos[0].id : -1);
             setItems(todos);
           })
-          .catch(console.log);
+          .catch(setErrorMessage);
       })
-      .catch(console.log);
+      .catch(setErrorMessage);
   }
 
   return (
@@ -174,10 +175,8 @@ function App() {
           <TodoAddItem onAdd={onAddItem} onFocus={onAddFocus} onBlur={onAddBlur} />
           {/* <button onClick={onReset}>Reset DB</button> */}
         </div>
-        <StatusBar todoStatus={todoStatus} />
+        <StatusBar todoStatus={todoStatus} errorMessage={errorMessage} />
       </main>
     </TodoContext.Provider>
   );
 }
-
-export default App;
